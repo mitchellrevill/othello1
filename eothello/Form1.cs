@@ -53,7 +53,14 @@ namespace eothello
         {
             int selectionRow = _gameBoardGui.GetCurrentRowIndex(sender);
             int selectionCol = _gameBoardGui.GetCurrentColumnIndex(sender);
-           
+            
+               // GAME BOARD DATA IS UR CLUE FUTRUE MITCHELL
+
+               // UPDATE IT WITH THE TURN OF THE PLAYER SO 10 or 1
+
+            // SO THE ARRAY SHOWS VALUE 10 EVERYTIME YOU CLICK 
+
+            // THEN USE THAT TO DETERMINE IF CLICkABLE
 
             int color = TurnCounter;
                 _gameBoardGui.SetTile(selectionRow, selectionCol, color.ToString());
