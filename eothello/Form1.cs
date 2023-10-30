@@ -79,10 +79,10 @@ namespace eothello
                                 
                                 ValidPoint = true; 
 
-                                foreach(var place in PointList)
-                                {
-                                    _gameBoardGui.SetTile(row, col, color.ToString());
-                                }
+                               // foreach(var place in PointList)
+                               // {
+                                //    _gameBoardGui.SetTile(row, col, color.ToString());
+                                //}
 
                             }
                             else if (gameBoardData[OffsettedPointX, OffsettedPointY] == 0)
