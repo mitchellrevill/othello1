@@ -258,7 +258,7 @@ namespace eothello
 
         private void VirtualPlayerTurn()
         {
-            int maxDepth = 100; 
+            int maxDepth = 10; 
             int timeThreshold = 1000; 
 
             StartStopwatch(); 
