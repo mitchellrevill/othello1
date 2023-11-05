@@ -11,7 +11,7 @@ namespace eothello
     public partial class ONielo : Form
     {
 
-        // Define Boardsize 
+        
         const int NUM_OF_BOARD_ROWS = 8;
         const int NUM_OF_BOARD_COL = 8;
 
@@ -36,7 +36,7 @@ namespace eothello
             Point bottom = new Point(120, 120);
 
 
-            // updates the games state, actual tiles = (_gameboardgui) LoggedPositions = (gameboardData)
+            
             gameBoardData = this.MakeBoardArray();
 
             try
@@ -61,7 +61,7 @@ namespace eothello
 
         }
 
-        //When game is started it uses this to setup the board
+        
         private int[,] MakeBoardArray()
         {
             int[,] BoardArray = new int[NUM_OF_BOARD_ROWS, NUM_OF_BOARD_COL];
@@ -75,7 +75,7 @@ namespace eothello
 
         }
 
-        // Tuple to return if a position ((0 - 0) --> (8, 8)) = is a validmove, and if it is returns correct tiles 
+       
          public (bool IsValid, List<Point> CapturedPoints) IsValidMove(int row, int col, int[,] gameboarddata, int TurnCounter1)
         {
             List<Point> capturedPoints = new List<Point>();
@@ -126,7 +126,7 @@ namespace eothello
         }
 
 
-        // does what it says on tin ;)
+       
         private bool IsWithinBoard(int x, int y)
         {
             return x >= 0 && x < gameBoardData.GetLength(0) && y >= 0 && y < gameBoardData.GetLength(1);
@@ -252,30 +252,30 @@ namespace eothello
 
         }
 
-        // checks if move is valid using isvalidMove and then places it if it is
+        
 
 
 
         private void VirtualPlayerTurn()
         {
-            int maxDepth = 100; // Maximum depth you want to search
-            int timeThreshold = 1000; // 1000 milliseconds (1 second)
+            int maxDepth = 100; 
+            int timeThreshold = 1000; 
 
-            StartStopwatch(); // Start the stopwatch
+            StartStopwatch(); 
 
             int alpha = int.MinValue;
-            int beta = int.MaxValue; // Initialize alpha and beta
+            int beta = int.MaxValue; 
 
             int player = TurnCounter;
             int opponent = (player == 1) ? 10 : 1;
 
             int bestRow = -1;
             int bestCol = -1;
-            int bestScore = int.MinValue; // Initialize bestScore
+            int bestScore = int.MinValue; 
 
             for (int depth = 1; depth <= maxDepth; depth++)
             {
-                int currentBestScore = int.MinValue; // Track the best score for this depth
+                int currentBestScore = int.MinValue; 
 
                 for (int row = 0; row < NUM_OF_BOARD_ROWS; row++)
                 {
@@ -295,32 +295,31 @@ namespace eothello
                                 bestCol = col;
                             }
 
-                            // Update alpha if needed
+                            
                             alpha = Math.Max(alpha, currentBestScore);
 
-                            // Check for beta pruning
+                            
                             if (beta <= alpha)
                             {
-                                break; // Beta pruning
+                                break; 
                             }
                         }
                     }
                 }
 
                 if (HasTimeExceededThreshold(timeThreshold))
-                {
-                    // If time exceeds the threshold, stop searching
+                {                
                     break;
                 }
 
-                // Update the overall best score and best move for the specified depth
+               
                 bestScore = currentBestScore;
             }
 
-            // Apply the best move to the actual game board
+            
             if (bestRow != -1 && bestCol != -1)
             {
-                // Update the board with the AI player's move
+               
 
 
 
@@ -379,12 +378,12 @@ namespace eothello
             stopwatch.Start();
         }
 
-        // Function to check if a specified amount of milliseconds has been exceeded
+        
         private bool HasTimeExceededThreshold(int milliseconds)
         {
             if (stopwatch.ElapsedMilliseconds > milliseconds)
             {
-                // Stop the stopwatch so it can be reset for the next check
+              
                 stopwatch.Stop();
                 stopwatch.Reset();
                 return true;
@@ -392,10 +391,10 @@ namespace eothello
             return false;
         }
 
-        // Recursive Minimax function
+       
         private int Minimax(int[,] board, int depth, int player, int originalPlayer, int alpha, int beta)
         {
-            if (depth == 0 || IsTerminal(board))
+            if (depth == 0)
             {
                 combinationCount++;
                 return EvaluateBoard(board, originalPlayer);
@@ -464,12 +463,6 @@ namespace eothello
             return (player == 1) ? 10 : 1;
         }
 
-        private bool IsTerminal(int[,] board)
-        {
-            // Implement your terminal state conditions here, e.g., no valid moves left
-            // or a full board.
-            return !AnyValidMoveLeft(1) && !AnyValidMoveLeft(10);
-        }
 
         private int EvaluateBoard(int[,] board, int player)
         {
@@ -493,7 +486,7 @@ namespace eothello
                 }
             }
 
-            // Calculate the score as the difference in the number of player's pieces and opponent's pieces
+            
             int score = playerCount - opponentCount;
 
             return score;
@@ -515,13 +508,7 @@ namespace eothello
         }
 
 
-        // Recursive Minimax function
-
-
-
-
-
-
+    
 
 
         public void GameTileClicked(object sender, EventArgs e)
