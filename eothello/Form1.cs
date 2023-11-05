@@ -1,9 +1,14 @@
 using GameboardGUI;
+using System.Text.Json;
+using System.Net.Security;
+using System.Speech.Synthesis;
+using System.Drawing.Drawing2D;
 using System.Drawing;
+using System.Diagnostics;
 
 namespace eothello
 {
-    public partial class Form1 : Form
+    public partial class ONielo : Form
     {
 
         // Define Boardsize 
@@ -16,16 +21,24 @@ namespace eothello
         string tileImagesDirPath = "Resources/";
         public int TurnCounter = 1;
         public bool FirstMove = true;
-        public Form1()
+        public bool FileFirst = true;
+        public int num = 1;
+        public bool saveGameEnabled = true;
+        private readonly SpeechSynthesizer speaker = new SpeechSynthesizer();
+        public bool virtualplayer = false;
+        private Stopwatch stopwatch = new Stopwatch();
+        private int combinationCount = 0;
+
+        public ONielo()
         {
             InitializeComponent();
             Point top = new Point(30, 30);
             Point bottom = new Point(120, 120);
-            
+
 
             // updates the games state, actual tiles = (_gameboardgui) LoggedPositions = (gameboardData)
             gameBoardData = this.MakeBoardArray();
-            
+
             try
             {
                 _gameBoardGui = new GameboardImageArray(this, gameBoardData, top, bottom, 0, tileImagesDirPath);
@@ -33,6 +46,12 @@ namespace eothello
                 _gameBoardGui.UpdateBoardGui(gameBoardData);
                 IterateThroughBoard();
                 UserInterface();
+                SpeakSettings();
+                NumberSet();
+                string ActiveDir = AppDomain.CurrentDomain.BaseDirectory;
+                string SaveDir = Path.Combine(ActiveDir, "saves");
+                string[] saveFiles = Directory.GetFiles(SaveDir, "*.json");
+                if (saveFiles.Length > 0) {SaveFilesload(saveFiles); }
             }
             catch (Exception ex)
             {
@@ -53,16 +72,17 @@ namespace eothello
             BoardArray[4, 4] = 10;
             return BoardArray;
 
+
         }
 
         // Tuple to return if a position ((0 - 0) --> (8, 8)) = is a validmove, and if it is returns correct tiles 
-        public (bool IsValid, List<Point> CapturedPoints) IsValidMove(int row, int col)
+         public (bool IsValid, List<Point> CapturedPoints) IsValidMove(int row, int col, int[,] gameboarddata, int TurnCounter1)
         {
             List<Point> capturedPoints = new List<Point>();
 
-            if (gameBoardData[row, col] == 0 || gameBoardData[row, col] == 100)
+
+            if (gameboarddata[row, col] == 0 || gameboarddata[row, col] == 100)
             {
-                Console.WriteLine(TurnCounter.ToString()); // Print the current TurnCounter value
 
                 Point ScanPos = new Point(row, col);
                 (int dx, int dy)[] offsets =
@@ -76,19 +96,19 @@ namespace eothello
                     int newX = ScanPos.X + offset.dx;
                     int newY = ScanPos.Y + offset.dy;
 
-                    if (IsWithinBoard(newX, newY) && gameBoardData[newX, newY] != TurnCounter)
+                    if (IsWithinBoard(newX, newY) && gameboarddata[newX, newY] != TurnCounter1)
                     {
-                        int opponentColor = TurnCounter == 1 ? 10 : 1;
+                        int opponentColor = TurnCounter1 == 1 ? 10 : 1;
                         List<Point> tempCapturedPoints = new List<Point>();
 
-                        while (IsWithinBoard(newX, newY) && gameBoardData[newX, newY] == opponentColor)
+                        while (IsWithinBoard(newX, newY) && gameboarddata[newX, newY] == opponentColor)
                         {
                             tempCapturedPoints.Add(new Point(newX, newY));
                             newX += offset.dx;
                             newY += offset.dy;
                         }
 
-                        if (IsWithinBoard(newX, newY) && gameBoardData[newX, newY] == TurnCounter && tempCapturedPoints.Count > 0)
+                        if (IsWithinBoard(newX, newY) && gameboarddata[newX, newY] == TurnCounter1 && tempCapturedPoints.Count > 0)
                         {
                             // A valid move is found
                             capturedPoints.AddRange(tempCapturedPoints);
@@ -108,9 +128,9 @@ namespace eothello
 
         // does what it says on tin ;)
         private bool IsWithinBoard(int x, int y)
-      {     
-          return x >= 0 && x < gameBoardData.GetLength(0) && y >= 0 && y < gameBoardData.GetLength(1);
-      }
+        {
+            return x >= 0 && x < gameBoardData.GetLength(0) && y >= 0 && y < gameBoardData.GetLength(1);
+        }
 
 
         // Draws the valid squares with an outlined box
@@ -120,7 +140,7 @@ namespace eothello
             {
                 for (int col = 0; col < NUM_OF_BOARD_COL; col++)
                 {
-                    var (isValid, capturedPoints) = IsValidMove(row, col);
+                    var (isValid, capturedPoints) = IsValidMove(row, col, gameBoardData, TurnCounter);
 
                     if (isValid)
                     {
@@ -129,7 +149,7 @@ namespace eothello
                     }
                 }
             }
-  
+
         }
 
         // the turns should clear the board of any valid moves markers 
@@ -155,7 +175,7 @@ namespace eothello
             {
                 for (int col = 0; col < NUM_OF_BOARD_COL; col++)
                 {
-                    var (isValid, _) = IsValidMove(row, col);
+                    var (isValid, _) = IsValidMove(row, col, gameBoardData, TurnCounter);
                     if (isValid)
                     {
                         return true;
@@ -193,7 +213,7 @@ namespace eothello
                 {
                     // Player 1 (color 1) wins
                     MessageBox.Show("Player 1 Wins");
-                    
+
                 }
                 else if (player10Count > player1Count)
                 {
@@ -207,7 +227,7 @@ namespace eothello
                     MessageBox.Show("It's a tie");
 
                 }
-                
+
             }
             return (player1Count, player10Count);
         }
@@ -219,7 +239,7 @@ namespace eothello
             label2.Text = player10Count.ToString();
             label1.Text = player1Count.ToString();
             Color color = Color.FromArgb(123, 255, 128);
-            if(TurnCounter == 10)
+            if (TurnCounter == 10)
             {
                 pictureBox4.BackColor = color;
                 pictureBox5.BackColor = Color.Green;
@@ -229,45 +249,677 @@ namespace eothello
                 pictureBox5.BackColor = color;
                 pictureBox4.BackColor = Color.Green;
             }
-  
+
         }
 
         // checks if move is valid using isvalidMove and then places it if it is
+
+
+
+        private void VirtualPlayerTurn()
+        {
+            int maxDepth = 100; // Maximum depth you want to search
+            int timeThreshold = 1000; // 1000 milliseconds (1 second)
+
+            StartStopwatch(); // Start the stopwatch
+
+            int alpha = int.MinValue;
+            int beta = int.MaxValue; // Initialize alpha and beta
+
+            int player = TurnCounter;
+            int opponent = (player == 1) ? 10 : 1;
+
+            int bestRow = -1;
+            int bestCol = -1;
+            int bestScore = int.MinValue; // Initialize bestScore
+
+            for (int depth = 1; depth <= maxDepth; depth++)
+            {
+                int currentBestScore = int.MinValue; // Track the best score for this depth
+
+                for (int row = 0; row < NUM_OF_BOARD_ROWS; row++)
+                {
+                    for (int col = 0; col < NUM_OF_BOARD_COL; col++)
+                    {
+                        var (isValid, capturedPoints) = IsValidMove(row, col, gameBoardData, player);
+                        if (isValid)
+                        {
+                            int[,] clonedBoard = (int[,])gameBoardData.Clone();
+                            SetAITile(row, col, clonedBoard, player);
+                            int score = Minimax(clonedBoard, depth - 1, opponent, player, alpha, beta);
+
+                            if (score > currentBestScore)
+                            {
+                                currentBestScore = score;
+                                bestRow = row;
+                                bestCol = col;
+                            }
+
+                            // Update alpha if needed
+                            alpha = Math.Max(alpha, currentBestScore);
+
+                            // Check for beta pruning
+                            if (beta <= alpha)
+                            {
+                                break; // Beta pruning
+                            }
+                        }
+                    }
+                }
+
+                if (HasTimeExceededThreshold(timeThreshold))
+                {
+                    // If time exceeds the threshold, stop searching
+                    break;
+                }
+
+                // Update the overall best score and best move for the specified depth
+                bestScore = currentBestScore;
+            }
+
+            // Apply the best move to the actual game board
+            if (bestRow != -1 && bestCol != -1)
+            {
+                // Update the board with the AI player's move
+
+
+
+                var (isValid, capturedPoints) = IsValidMove(bestRow, bestCol, gameBoardData, 10);
+
+                if (isValid)
+                {
+                    int color = 10;
+                    DisposeOfValidMoves();
+
+                    _gameBoardGui.SetTile(bestRow, bestCol, color.ToString());
+                    gameBoardData[bestRow, bestCol] = TurnCounter;
+
+                    var coordinate = (bestRow.ToString() + "," + bestCol.ToString());
+
+
+                    string GameTiles = string.Join(", ", capturedPoints);
+
+
+                    foreach (Point capturedPoint in capturedPoints)
+                    {
+                        gameBoardData[capturedPoint.X, capturedPoint.Y] = TurnCounter;
+                        _gameBoardGui.SetTile(capturedPoint.X, capturedPoint.Y, color.ToString());
+                    }
+
+                    Console.WriteLine(GameTiles);
+                    if (toolStripMenuItem1.Checked)
+                    {
+
+                        speaker.SpeakAsync("Player placed counter at " + coordinate);
+                        speaker.SpeakAsync("tile has flipped at " + GameTiles);
+
+                        if (TurnCounter == 1)
+                        {
+                            speaker.SpeakAsync("Whites Turn");
+                        }
+                        else
+                        {
+                            speaker.SpeakAsync("Blacks Turn");
+                        }
+
+
+
+                    }
+                    Console.WriteLine(TurnCounter);
+                    TurnCounter = (TurnCounter == 1) ? 10 : 1;
+                    Console.WriteLine(TurnCounter);
+
+                    IterateThroughBoard();
+                }
+                UserInterface();
+            }
+        }
+        private void StartStopwatch()
+        {
+            stopwatch.Start();
+        }
+
+        // Function to check if a specified amount of milliseconds has been exceeded
+        private bool HasTimeExceededThreshold(int milliseconds)
+        {
+            if (stopwatch.ElapsedMilliseconds > milliseconds)
+            {
+                // Stop the stopwatch so it can be reset for the next check
+                stopwatch.Stop();
+                stopwatch.Reset();
+                return true;
+            }
+            return false;
+        }
+
+        // Recursive Minimax function
+        private int Minimax(int[,] board, int depth, int player, int originalPlayer, int alpha, int beta)
+        {
+            if (depth == 0 || IsTerminal(board))
+            {
+                combinationCount++;
+                return EvaluateBoard(board, originalPlayer);
+            }
+
+            if (player == originalPlayer)
+            {
+                int bestScore = int.MinValue;
+
+                for (int row = 0; row < NUM_OF_BOARD_ROWS; row++)
+                {
+                    for (int col = 0; col < NUM_OF_BOARD_COL; col++)
+                    {
+                        var (isValid, capturedPoints) = IsValidMove(row, col, board, player);
+                        if (isValid)
+                        {
+                            int[,] clonedBoard = (int[,])board.Clone();
+                            SetAITile(row, col, clonedBoard, player);
+                            int score = Minimax(clonedBoard, depth - 1, GetOpponent(player), originalPlayer, alpha, beta);
+                            bestScore = Math.Max(bestScore, score);
+                            alpha = Math.Max(alpha, bestScore);
+                            if (beta <= alpha)
+                            {
+                                break; // Beta pruning
+                            }
+                        }
+                    }
+                }
+
+                return bestScore;
+            }
+            else
+            {
+                int bestScore = int.MaxValue;
+
+                for (int row = 0; row < NUM_OF_BOARD_ROWS; row++)
+                {
+                    for (int col = 0; col < NUM_OF_BOARD_COL; col++)
+                    {
+                        var (isValid, capturedPoints) = IsValidMove(row, col, board, player);
+                        if (isValid)
+                        {
+                            int[,] clonedBoard = (int[,])board.Clone();
+                            SetAITile(row, col, clonedBoard, player);
+                            int score = Minimax(clonedBoard, depth - 1, GetOpponent(player), originalPlayer, alpha, beta);
+                            bestScore = Math.Min(bestScore, score);
+                            beta = Math.Min(beta, bestScore);
+                            if (beta <= alpha)
+                            {
+                                break; // Alpha pruning
+                            }
+                        }
+                    }
+                }
+
+                return bestScore;
+            }
+        }
+
+
+
+
+
+        private int GetOpponent(int player)
+        {
+            return (player == 1) ? 10 : 1;
+        }
+
+        private bool IsTerminal(int[,] board)
+        {
+            // Implement your terminal state conditions here, e.g., no valid moves left
+            // or a full board.
+            return !AnyValidMoveLeft(1) && !AnyValidMoveLeft(10);
+        }
+
+        private int EvaluateBoard(int[,] board, int player)
+        {
+            int opponent = GetOpponent(player); // Get the opponent's player ID
+
+            int playerCount = 0;
+            int opponentCount = 0;
+
+            for (int row = 0; row < NUM_OF_BOARD_ROWS; row++)
+            {
+                for (int col = 0; col < NUM_OF_BOARD_COL; col++)
+                {
+                    if (board[row, col] == player)
+                    {
+                        playerCount++;
+                    }
+                    else if (board[row, col] == opponent)
+                    {
+                        opponentCount++;
+                    }
+                }
+            }
+
+            // Calculate the score as the difference in the number of player's pieces and opponent's pieces
+            int score = playerCount - opponentCount;
+
+            return score;
+        }
+
+
+
+        public void SetAITile(int row, int col, int[,] AIGameBoard, int player)
+        {
+            var (isValid, capturedPoints) = IsValidMove(row, col, AIGameBoard, player);
+
+            AIGameBoard[row, col] = player;
+            foreach (Point capturedPoint in capturedPoints)
+            {
+                AIGameBoard[capturedPoint.X, capturedPoint.Y] = player;
+
+            }
+
+        }
+
+
+        // Recursive Minimax function
+
+
+
+
+
+
+
+
         public void GameTileClicked(object sender, EventArgs e)
         {
             int selectionRow = _gameBoardGui.GetCurrentRowIndex(sender);
             int selectionCol = _gameBoardGui.GetCurrentColumnIndex(sender);
 
-            var (isValid, capturedPoints) = IsValidMove(selectionRow, selectionCol);
+            var (isValid, capturedPoints) = IsValidMove(selectionRow, selectionCol, gameBoardData, TurnCounter);
+
+            if(textBox1.Text == "")
+            {
+                textBox1.Text = "Player #1 ";
+            }
+            if(textBox2.Text == "")
+            {
+                textBox2.Text = "Player #2 ";
+            }
+
+
+            textBox1.ReadOnly = true;
+            textBox2.ReadOnly = true;
+
 
             if (isValid)
             {
-                int color = TurnCounter;             
+                int color = TurnCounter;
                 DisposeOfValidMoves();
 
                 _gameBoardGui.SetTile(selectionRow, selectionCol, color.ToString());
                 gameBoardData[selectionRow, selectionCol] = TurnCounter;
 
-              
-
-                // Set all captured points to the current player's color
-                foreach (Point capturedPoint in capturedPoints)
-                {
-                    gameBoardData[capturedPoint.X, capturedPoint.Y] = TurnCounter;
-                    _gameBoardGui.SetTile(capturedPoint.X, capturedPoint.Y, color.ToString());
-                }
-
+                var coordinate = (selectionRow.ToString() +  "," + selectionCol.ToString());
                
-                TurnCounter = (TurnCounter == 1) ? 10 : 1;
 
+                string GameTiles = string.Join(", ",capturedPoints);
+
+                    // Set all captured points to the current player's color
+                    foreach (Point capturedPoint in capturedPoints)
+                    {
+                        gameBoardData[capturedPoint.X, capturedPoint.Y] = TurnCounter;
+                        _gameBoardGui.SetTile(capturedPoint.X, capturedPoint.Y, color.ToString());
+                    }
+                
+                Console.WriteLine(GameTiles);
+                if (toolStripMenuItem1.Checked)
+                {
+
+                    speaker.SpeakAsync("Player placed counter at " + coordinate);
+                    speaker.SpeakAsync("tile has flipped at " + GameTiles);
+
+                    if(TurnCounter == 1)
+                    {
+                        speaker.SpeakAsync("Whites Turn");
+                    }
+                    else
+                    {
+                        speaker.SpeakAsync("Blacks Turn");
+                    }
+
+
+
+                }
+                
+                TurnCounter = (TurnCounter == 1) ? 10 : 1;
+               
                 // Redisplay valid moves for the next player
                 IterateThroughBoard();
-
-                
+            }
+            if (TurnCounter == 10)
+            {
+                if(virtualplayer) { VirtualPlayerTurn(); }
 
             }
+            Console.WriteLine(combinationCount);
+            SpeakSettings();
             UserInterface();
+            
         }
-    }
 
+        public void SpeakSettings()
+        {
+            var SpeakItem = toolStripMenuItem1;
+
+
+            SpeechSynthesizer speaker = new SpeechSynthesizer(); // Create a new instance here
+
+            SpeakItem.Click += (sender, e) =>
+            {
+                if (!SpeakItem.Checked)
+                {
+                    
+                    speaker.SetOutputToDefaultAudioDevice();
+                    SpeakItem.CheckState = CheckState.Checked;
+                    speaker.SpeakAsync("Dictation is on.");
+                }
+                else
+                {
+                    //SpeakItem.Item;
+                }
+
+                if (SpeakItem.Checked)
+                {
+                }
+
+            };
+
+        }
+        private void newGameToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            DialogResult result = MessageBox.Show("Unsaved progress, Do you want to continue?", "Confirmation", MessageBoxButtons.YesNo);
+            if (result == DialogResult.Yes)
+            {
+                int[,] BoardArray = new int[NUM_OF_BOARD_ROWS, NUM_OF_BOARD_COL];
+                gameBoardData = BoardArray;
+                gameBoardData = this.MakeBoardArray();
+                _gameBoardGui.UpdateBoardGui(gameBoardData);
+                TurnCounter = 1;
+                IterateThroughBoard();
+
+            }
+
+        }
+        private void saveGameToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            if (!saveGameEnabled)
+            {
+                return; // Exit the event handler if saving is disabled
+            }
+
+
+            string ActiveDir = AppDomain.CurrentDomain.BaseDirectory;
+            string SaveDir = Path.Combine(ActiveDir, "saves");
+
+            int[,] NewBoardArray = new int[NUM_OF_BOARD_ROWS, NUM_OF_BOARD_COL];
+            NewBoardArray = gameBoardData;
+
+            int numRows = NewBoardArray.GetLength(0);
+            int numCols = NewBoardArray.GetLength(1);
+
+            int[][] jaggedArray = new int[numRows][];
+
+            for (int i = 0; i < numRows; i++)
+            {
+                jaggedArray[i] = new int[numCols];
+                for (int j = 0; j < numCols; j++)
+                {
+                    jaggedArray[i][j] = NewBoardArray[i, j];
+                }
+            }
+            var saveData = new
+            {
+                GameBoardData = jaggedArray,
+                TurnCounter = TurnCounter,
+                BlackCounterName = textBox1.Text,
+                WhiteCounterName = textBox2.Text
+            };
+
+            string saveDataJson = JsonSerializer.Serialize(saveData);
+
+            if (num != 6)
+            {
+                string saveFilePath = Path.Combine(SaveDir, "gamesave" + num.ToString() + ".json");
+                var TempNum = num;
+                if (!Directory.Exists(saveFilePath))
+                {
+                    File.WriteAllText(saveFilePath, saveDataJson);
+                }
+                else
+                {
+                    MessageBox.Show("Cmom man");
+                }
+
+                
+                saveFilePath = Path.Combine(SaveDir, "gamesave" + TempNum.ToString() + ".json");
+                List<string> list = new List<string>();
+                
+
+                if(num == 2)
+                {
+                    TempNum--;
+                    var saveFilePath1 = Path.Combine(SaveDir, "gamesave" + TempNum.ToString() + ".json");
+                    list.Add(saveFilePath1);
+                }
+                list.Add(saveFilePath);
+                string[] saveFiles = list.ToArray();
+                SaveFilesload(saveFiles);
+
+            }
+            else 
+            {
+                string Overwrite = Path.Combine(ActiveDir, "saves");
+                string[] saveFiles = Directory.GetFiles(SaveDir, "*.json");
+                MessageBox.Show("Maximum Save Game Reached, Please select save to overwrite", "Error", MessageBoxButtons.OK);
+                foreach (string saveFile in saveFiles)
+                {
+
+                    string fileName = Path.GetFileNameWithoutExtension(saveFile);
+                    var LoadedGame = new ToolStripMenuItem(fileName);
+                    saveGameEnabled = false;
+                    LoadedGame.Click += (sender, e) =>
+                    {
+                        string fileName = Path.GetFileNameWithoutExtension(saveFile);
+                        OverWriteData(fileName);
+                    };
+
+                    saveGameToolStripMenuItem1.DropDownItems.Add(LoadedGame);
+                }
+            }
+        }
+
+        public void SaveFilesload(string[] Dir)
+        {
+
+            string ActiveDir = AppDomain.CurrentDomain.BaseDirectory;
+            string SaveDir = Path.Combine(ActiveDir, "saves");
+            string[] saveFiles = Dir.Select(x => x.ToString()).ToArray();
+            int SaveNum = saveFiles.Length;
+
+            if (num > 1)
+            {
+                num++;
+                foreach (string saveFile in saveFiles)
+                {
+
+                    string fileName = Path.GetFileNameWithoutExtension(saveFile);
+                    var LoadedGame = new ToolStripMenuItem(fileName);
+
+
+                    LoadedGame.Click += (sender, e) =>
+                    {
+                        var result = DecodeJSON(saveFile);
+                        var dynamicData = result.DynamicData;
+                        var multidimensionalArray = result.MultidimensionalArray;
+                        int turnCounter = dynamicData.TurnCounter;
+
+                        textBox1.Text = dynamicData.BlackCounterName;
+                        textBox2.Text = dynamicData.WhiteCounterName;
+                        gameBoardData = multidimensionalArray;
+                        TurnCounter = turnCounter;
+                        _gameBoardGui.UpdateBoardGui(gameBoardData);
+                        IterateThroughBoard();
+                        MessageBox.Show("Loading game: " + fileName);
+                    };
+
+                    loadGameToolStripMenuItem.DropDownItems.Add(LoadedGame);
+                }
+            }
+            else
+            {
+                num++;
+                var saveFile = saveFiles[0];
+                string fileName = Path.GetFileNameWithoutExtension(saveFile);
+                var LoadedGame = loadGameToolStripMenuItem;
+
+                LoadedGame.Click += (sender, e) =>
+                {
+                    var result = DecodeJSON(saveFile);
+                    var dynamicData = result.DynamicData;
+                    var multidimensionalArray = result.MultidimensionalArray;
+                    int turnCounter = dynamicData.TurnCounter;
+
+                    textBox1.Text = dynamicData.BlackCounterName;
+                    textBox2.Text = dynamicData.WhiteCounterName;
+                    gameBoardData = multidimensionalArray;
+                    TurnCounter = turnCounter;
+                    _gameBoardGui.UpdateBoardGui(gameBoardData);
+                    IterateThroughBoard();
+                    MessageBox.Show("Loading game: " + fileName);
+                };
+
+            }
+        }
+        public void OverWriteData(string filename)
+        {
+            string ActiveDir = AppDomain.CurrentDomain.BaseDirectory;
+            string Overwrite = Path.Combine(ActiveDir, "saves");
+
+
+            int[,] NewBoardArray = new int[NUM_OF_BOARD_ROWS, NUM_OF_BOARD_COL];
+            NewBoardArray = gameBoardData;
+
+            int numRows = NewBoardArray.GetLength(0);
+            int numCols = NewBoardArray.GetLength(1);
+
+            int[][] jaggedArray = new int[numRows][];
+
+            for (int i = 0; i < numRows; i++)
+            {
+                jaggedArray[i] = new int[numCols];
+                for (int j = 0; j < numCols; j++)
+                {
+                    jaggedArray[i][j] = NewBoardArray[i, j];
+                }
+            }
+            var saveData = new
+            {
+                GameBoardData = jaggedArray,
+                TurnCounter = TurnCounter,
+                BlackCounterName = textBox1.Text,
+                WhiteCounterName = textBox2.Text
+            };
+
+            string saveDataJson = JsonSerializer.Serialize(saveData);
+
+
+            if (!Directory.Exists(Overwrite))
+            {
+                Directory.CreateDirectory(Overwrite);
+            }
+
+            string saveFilePath = Path.Combine(Overwrite, filename + ".json");
+            var TempNum = num;
+            if (!Directory.Exists(saveFilePath))
+            {
+                File.WriteAllText(saveFilePath, saveDataJson);
+                MessageBox.Show("Save Overwritten");
+            }
+            else
+            {
+                MessageBox.Show("Cmom man");
+            }
+        }
+        public void NumberSet()
+        {
+            string ActiveDir = AppDomain.CurrentDomain.BaseDirectory;
+            string SaveDir = Path.Combine(ActiveDir, "saves");
+            string[] AllFiles = Directory.GetFiles(SaveDir, "*.json");
+            foreach (string filePath in AllFiles)
+            {
+                string fileName = Path.GetFileNameWithoutExtension(filePath);
+                var parts = fileName.Split("gamesave");
+                if (parts.Length > 1)
+                {
+                    if (int.TryParse(parts[1], out int fileNum))
+                    {
+                        if (fileNum > num)
+                        {
+                            num = fileNum;
+
+                            string[] AlFiles = Directory.GetFiles(SaveDir, "*.json");
+                            if (AlFiles.Length > 0)
+                            {
+                                FileFirst = true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+
+        private (GameData DynamicData, int[,] MultidimensionalArray) DecodeJSON(string dir)
+        {
+            string fileName = Path.GetFileNameWithoutExtension(dir);
+            var jsondata = File.ReadAllText("saves/" + fileName + ".json");
+            var dynamicData = JsonSerializer.Deserialize<GameData>(jsondata);
+            var jaggedArray = dynamicData.GameBoardData;
+            int numRows = jaggedArray.Length;
+            int numCols = jaggedArray[0].Length;
+
+            int[,] multidimensionalArray = new int[numRows, numCols];
+
+            for (int i = 0; i < numRows; i++)
+            {
+                for (int j = 0; j < numCols; j++)
+                {
+                    multidimensionalArray[i, j] = jaggedArray[i][j];
+                }
+            }
+
+            return (dynamicData, multidimensionalArray);
+        }
+
+
+
+        public class GameData
+        {
+            public int[][] GameBoardData { get; set; }
+            public int TurnCounter { get; set; }
+            public string BlackCounterName { get; set; }
+            public string WhiteCounterName { get; set; }
+        }
+
+        private void aboutMeToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            Form2 f2 = new Form2();
+            f2.Show();
+        }
+
+        private void virtualPlayerToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (!virtualplayer) { virtualplayer = true; } else { virtualplayer = false; }
+
+        }
+    } 
 }
+
+
+
+
+

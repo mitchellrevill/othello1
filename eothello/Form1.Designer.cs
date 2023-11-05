@@ -1,6 +1,6 @@
 ﻿namespace eothello
 {
-    partial class Form1
+    partial class ONielo
     {
         /// <summary>
         ///  Required designer variable.
@@ -28,9 +28,15 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ONielo));
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.gameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.newGameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveGameToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.loadGameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.aboutMeToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
             this.pictureBox3 = new System.Windows.Forms.PictureBox();
@@ -38,8 +44,10 @@
             this.pictureBox5 = new System.Windows.Forms.PictureBox();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
-            this.label3 = new System.Windows.Forms.Label();
-            this.label4 = new System.Windows.Forms.Label();
+            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.textBox2 = new System.Windows.Forms.TextBox();
+            this.saveGameToolStripMenuItem = new System.Windows.Forms.ToolStripDropDownMenu();
+            this.virtualPlayerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
@@ -52,7 +60,8 @@
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.gameToolStripMenuItem,
-            this.settingsToolStripMenuItem});
+            this.settingsToolStripMenuItem,
+            this.aboutMeToolStripMenuItem1});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(784, 24);
@@ -61,15 +70,55 @@
             // 
             // gameToolStripMenuItem
             // 
+            this.gameToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.newGameToolStripMenuItem,
+            this.saveGameToolStripMenuItem1,
+            this.loadGameToolStripMenuItem});
             this.gameToolStripMenuItem.Name = "gameToolStripMenuItem";
             this.gameToolStripMenuItem.Size = new System.Drawing.Size(50, 20);
             this.gameToolStripMenuItem.Text = "Game";
             // 
+            // newGameToolStripMenuItem
+            // 
+            this.newGameToolStripMenuItem.Name = "newGameToolStripMenuItem";
+            this.newGameToolStripMenuItem.Size = new System.Drawing.Size(134, 22);
+            this.newGameToolStripMenuItem.Text = "New Game";
+            this.newGameToolStripMenuItem.Click += new System.EventHandler(this.newGameToolStripMenuItem_Click);
+            // 
+            // saveGameToolStripMenuItem1
+            // 
+            this.saveGameToolStripMenuItem1.Name = "saveGameToolStripMenuItem1";
+            this.saveGameToolStripMenuItem1.Size = new System.Drawing.Size(134, 22);
+            this.saveGameToolStripMenuItem1.Text = "Save Game";
+            this.saveGameToolStripMenuItem1.Click += new System.EventHandler(this.saveGameToolStripMenuItem1_Click);
+            // 
+            // loadGameToolStripMenuItem
+            // 
+            this.loadGameToolStripMenuItem.Name = "loadGameToolStripMenuItem";
+            this.loadGameToolStripMenuItem.Size = new System.Drawing.Size(134, 22);
+            this.loadGameToolStripMenuItem.Text = "Load Game";
+            // 
             // settingsToolStripMenuItem
             // 
+            this.settingsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripMenuItem1,
+            this.virtualPlayerToolStripMenuItem});
             this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
             this.settingsToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
             this.settingsToolStripMenuItem.Text = "Settings";
+            // 
+            // toolStripMenuItem1
+            // 
+            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
+            this.toolStripMenuItem1.Text = "Speak";
+            // 
+            // aboutMeToolStripMenuItem1
+            // 
+            this.aboutMeToolStripMenuItem1.Name = "aboutMeToolStripMenuItem1";
+            this.aboutMeToolStripMenuItem1.Size = new System.Drawing.Size(72, 20);
+            this.aboutMeToolStripMenuItem1.Text = "About me";
+            this.aboutMeToolStripMenuItem1.Click += new System.EventHandler(this.aboutMeToolStripMenuItem1_Click);
             // 
             // pictureBox1
             // 
@@ -141,47 +190,59 @@
             this.label2.TabIndex = 7;
             this.label2.Text = "0";
             // 
-            // label3
+            // textBox1
             // 
-            this.label3.AutoSize = true;
-            this.label3.BackColor = System.Drawing.Color.Green;
-            this.label3.Font = new System.Drawing.Font("Rockwell", 25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.label3.Location = new System.Drawing.Point(577, 685);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(166, 38);
-            this.label3.TabIndex = 8;
-            this.label3.Text = "Player #2";
+            this.textBox1.Font = new System.Drawing.Font("Segoe UI", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.textBox1.Location = new System.Drawing.Point(184, 678);
+            this.textBox1.Name = "textBox1";
+            this.textBox1.Size = new System.Drawing.Size(187, 39);
+            this.textBox1.TabIndex = 8;
             // 
-            // label4
+            // textBox2
             // 
-            this.label4.AutoSize = true;
-            this.label4.BackColor = System.Drawing.Color.Green;
-            this.label4.Font = new System.Drawing.Font("Rockwell", 25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.label4.Location = new System.Drawing.Point(197, 685);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(175, 38);
-            this.label4.TabIndex = 9;
-            this.label4.Text = "Player #1 ";
+            this.textBox2.Font = new System.Drawing.Font("Segoe UI", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.textBox2.Location = new System.Drawing.Point(562, 678);
+            this.textBox2.Name = "textBox2";
+            this.textBox2.Size = new System.Drawing.Size(179, 39);
+            this.textBox2.TabIndex = 9;
             // 
-            // Form1
+            // saveGameToolStripMenuItem
+            // 
+            this.saveGameToolStripMenuItem.AllowDrop = true;
+            this.saveGameToolStripMenuItem.AutoClose = false;
+            this.saveGameToolStripMenuItem.Name = "saveGameToolStripMenuItem";
+            this.saveGameToolStripMenuItem.ShowItemToolTips = false;
+            this.saveGameToolStripMenuItem.Size = new System.Drawing.Size(61, 4);
+            // 
+            // virtualPlayerToolStripMenuItem
+            // 
+            this.virtualPlayerToolStripMenuItem.Name = "virtualPlayerToolStripMenuItem";
+            this.virtualPlayerToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.virtualPlayerToolStripMenuItem.Text = "Virtual Player";
+            this.virtualPlayerToolStripMenuItem.Click += new System.EventHandler(this.virtualPlayerToolStripMenuItem_Click);
+            // 
+            // ONielo
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(64)))), ((int)(((byte)(0)))));
             this.ClientSize = new System.Drawing.Size(784, 761);
-            this.Controls.Add(this.label4);
+            this.Controls.Add(this.textBox2);
+            this.Controls.Add(this.textBox1);
             this.Controls.Add(this.pictureBox3);
             this.Controls.Add(this.pictureBox5);
-            this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.pictureBox2);
             this.Controls.Add(this.pictureBox4);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.menuStrip1);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip1;
-            this.Name = "Form1";
-            this.Text = "Form1";
+            this.MaximumSize = new System.Drawing.Size(800, 800);
+            this.MinimumSize = new System.Drawing.Size(800, 800);
+            this.Name = "ONielo";
+            this.Text = "O\'Nielo";
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
@@ -198,7 +259,6 @@
 
         private MenuStrip menuStrip1;
         private ToolStripMenuItem gameToolStripMenuItem;
-        private ToolStripMenuItem settingsToolStripMenuItem;
         private PictureBox pictureBox1;
         private PictureBox pictureBox2;
         private PictureBox pictureBox3;
@@ -208,5 +268,15 @@
         private Label label2;
         private Label label3;
         private Label label4;
+        private ToolStripMenuItem newGameToolStripMenuItem;
+        private ToolStripMenuItem loadGameToolStripMenuItem;
+        private TextBox textBox1;
+        private TextBox textBox2;
+        private ToolStripDropDownMenu saveGameToolStripMenuItem;
+        private ToolStripMenuItem saveGameToolStripMenuItem1;
+        private ToolStripMenuItem aboutMeToolStripMenuItem1;
+        private ToolStripMenuItem settingsToolStripMenuItem;
+        private ToolStripMenuItem toolStripMenuItem1;
+        private ToolStripMenuItem virtualPlayerToolStripMenuItem;
     }
 }

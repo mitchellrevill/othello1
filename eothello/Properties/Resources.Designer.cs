@@ -59,5 +59,15 @@ namespace eothello.Properties {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Screenshot_2023_11_04_171918 {
+            get {
+                object obj = ResourceManager.GetObject("Screenshot 2023-11-04 171918", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
     }
 }
