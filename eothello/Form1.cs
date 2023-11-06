@@ -11,7 +11,7 @@ namespace eothello
     public partial class ONielo : Form
     {
 
-        
+
         const int NUM_OF_BOARD_ROWS = 8;
         const int NUM_OF_BOARD_COL = 8;
 
@@ -28,6 +28,7 @@ namespace eothello
         public bool virtualplayer = false;
         private Stopwatch stopwatch = new Stopwatch();
         private int combinationCount = 0;
+        int checkBoxClicks = 1;
 
         public ONielo()
         {
@@ -36,7 +37,7 @@ namespace eothello
             Point bottom = new Point(120, 120);
 
 
-            
+
             gameBoardData = this.MakeBoardArray();
 
             try
@@ -51,7 +52,7 @@ namespace eothello
                 string ActiveDir = AppDomain.CurrentDomain.BaseDirectory;
                 string SaveDir = Path.Combine(ActiveDir, "saves");
                 string[] saveFiles = Directory.GetFiles(SaveDir, "*.json");
-                if (saveFiles.Length > 0) {SaveFilesload(saveFiles); }
+                if (saveFiles.Length > 0) { SaveFilesload(saveFiles); }
             }
             catch (Exception ex)
             {
@@ -61,7 +62,7 @@ namespace eothello
 
         }
 
-        
+
         private int[,] MakeBoardArray()
         {
             int[,] BoardArray = new int[NUM_OF_BOARD_ROWS, NUM_OF_BOARD_COL];
@@ -75,8 +76,8 @@ namespace eothello
 
         }
 
-       
-         public (bool IsValid, List<Point> CapturedPoints) IsValidMove(int row, int col, int[,] gameboarddata, int TurnCounter1)
+
+        public (bool IsValid, List<Point> CapturedPoints) IsValidMove(int row, int col, int[,] gameboarddata, int TurnCounter1)
         {
             List<Point> capturedPoints = new List<Point>();
 
@@ -126,7 +127,7 @@ namespace eothello
         }
 
 
-       
+
         private bool IsWithinBoard(int x, int y)
         {
             return x >= 0 && x < gameBoardData.GetLength(0) && y >= 0 && y < gameBoardData.GetLength(1);
@@ -252,30 +253,31 @@ namespace eothello
 
         }
 
-        
+
 
 
 
         private void VirtualPlayerTurn()
         {
-            int maxDepth = 5; 
-            int timeThreshold = 1000; 
 
-            StartStopwatch(); 
+            int maxDepth = 5;
+            int timeThreshold = 1000;
+
+            StartStopwatch();
 
             int alpha = int.MinValue;
-            int beta = int.MaxValue; 
+            int beta = int.MaxValue;
 
             int player = TurnCounter;
             int opponent = (player == 1) ? 10 : 1;
 
             int bestRow = -1;
             int bestCol = -1;
-            int bestScore = int.MinValue; 
+            int bestScore = int.MinValue;
 
             for (int depth = 1; depth <= maxDepth; depth++)
             {
-                int currentBestScore = int.MinValue; 
+                int currentBestScore = int.MinValue;
 
                 for (int row = 0; row < NUM_OF_BOARD_ROWS; row++)
                 {
@@ -295,31 +297,31 @@ namespace eothello
                                 bestCol = col;
                             }
 
-                            
+
                             alpha = Math.Max(alpha, currentBestScore);
 
-                            
+
                             if (beta <= alpha)
                             {
-                                break; 
+                                break;
                             }
                         }
                     }
                 }
 
                 if (HasTimeExceededThreshold(timeThreshold))
-                {                
+                {
                     break;
                 }
 
-               
+
                 bestScore = currentBestScore;
             }
 
-            
+
             if (bestRow != -1 && bestCol != -1)
             {
-               
+
 
 
 
@@ -378,12 +380,12 @@ namespace eothello
             stopwatch.Start();
         }
 
-        
+
         private bool HasTimeExceededThreshold(int milliseconds)
         {
             if (stopwatch.ElapsedMilliseconds > milliseconds)
             {
-              
+
                 stopwatch.Stop();
                 stopwatch.Reset();
                 return true;
@@ -391,7 +393,7 @@ namespace eothello
             return false;
         }
 
-       
+
         private int Minimax(int[,] board, int depth, int player, int originalPlayer, int alpha, int beta)
         {
             if (depth == 0 || IsTerminal(board))
@@ -490,7 +492,7 @@ namespace eothello
                 }
             }
 
-            
+
             int score = playerCount - opponentCount;
 
             return score;
@@ -512,7 +514,7 @@ namespace eothello
         }
 
 
-    
+
 
 
         public void GameTileClicked(object sender, EventArgs e)
@@ -522,11 +524,11 @@ namespace eothello
 
             var (isValid, capturedPoints) = IsValidMove(selectionRow, selectionCol, gameBoardData, TurnCounter);
 
-            if(textBox1.Text == "")
+            if (textBox1.Text == "")
             {
                 textBox1.Text = "Player #1 ";
             }
-            if(textBox2.Text == "")
+            if (textBox2.Text == "")
             {
                 textBox2.Text = "Player #2 ";
             }
@@ -544,26 +546,27 @@ namespace eothello
                 _gameBoardGui.SetTile(selectionRow, selectionCol, color.ToString());
                 gameBoardData[selectionRow, selectionCol] = TurnCounter;
 
-                var coordinate = (selectionRow.ToString() +  "," + selectionCol.ToString());
-               
+                var coordinate = (selectionRow.ToString() + "," + selectionCol.ToString());
 
-                string GameTiles = string.Join(", ",capturedPoints);
 
-                    // Set all captured points to the current player's color
-                    foreach (Point capturedPoint in capturedPoints)
-                    {
-                        gameBoardData[capturedPoint.X, capturedPoint.Y] = TurnCounter;
-                        _gameBoardGui.SetTile(capturedPoint.X, capturedPoint.Y, color.ToString());
-                    }
-                
+                string GameTiles = string.Join(", ", capturedPoints);
+
+                // Set all captured points to the current player's color
+                foreach (Point capturedPoint in capturedPoints)
+                {
+                    gameBoardData[capturedPoint.X, capturedPoint.Y] = TurnCounter;
+                    _gameBoardGui.SetTile(capturedPoint.X, capturedPoint.Y, color.ToString());
+                }
+
                 Console.WriteLine(GameTiles);
+
                 if (toolStripMenuItem1.Checked)
                 {
 
                     speaker.SpeakAsync("Player placed counter at " + coordinate);
                     speaker.SpeakAsync("tile has flipped at " + GameTiles);
 
-                    if(TurnCounter == 1)
+                    if (TurnCounter == 1)
                     {
                         speaker.SpeakAsync("Whites Turn");
                     }
@@ -575,21 +578,26 @@ namespace eothello
 
 
                 }
-                
+
                 TurnCounter = (TurnCounter == 1) ? 10 : 1;
-               
+
                 // Redisplay valid moves for the next player
                 IterateThroughBoard();
             }
             if (TurnCounter == 10)
             {
-                if(virtualplayer) { VirtualPlayerTurn(); }
+
+                if (virtualplayer) { VirtualPlayerTurn(); }
+
+            }
+            else
+            {
 
             }
             Console.WriteLine(combinationCount);
             SpeakSettings();
             UserInterface();
-            
+
         }
 
         public void SpeakSettings()
@@ -601,22 +609,25 @@ namespace eothello
 
             SpeakItem.Click += (sender, e) =>
             {
-                if (!SpeakItem.Checked)
+                checkBoxClicks += 1;
+                
+                if (checkBoxClicks % 2 == 0) 
                 {
-                    
-                    speaker.SetOutputToDefaultAudioDevice();
+                    try
+                    {
+                        speaker.SetOutputToDefaultAudioDevice();
+                    }
+                    catch
+                    {
+
+                    }
                     SpeakItem.CheckState = CheckState.Checked;
                     speaker.SpeakAsync("Dictation is on.");
                 }
-                else
+                else 
                 {
-                    //SpeakItem.Item;
+                    SpeakItem.CheckState = CheckState.Unchecked;
                 }
-
-                if (SpeakItem.Checked)
-                {
-                }
-
             };
 
         }
@@ -685,12 +696,12 @@ namespace eothello
                     MessageBox.Show("Cmom man");
                 }
 
-                
+
                 saveFilePath = Path.Combine(SaveDir, "gamesave" + TempNum.ToString() + ".json");
                 List<string> list = new List<string>();
-                
 
-                if(num == 2)
+
+                if (num == 2)
                 {
                     TempNum--;
                     var saveFilePath1 = Path.Combine(SaveDir, "gamesave" + TempNum.ToString() + ".json");
@@ -701,7 +712,7 @@ namespace eothello
                 SaveFilesload(saveFiles);
 
             }
-            else 
+            else
             {
                 string Overwrite = Path.Combine(ActiveDir, "saves");
                 string[] saveFiles = Directory.GetFiles(SaveDir, "*.json");
@@ -907,7 +918,12 @@ namespace eothello
             if (!virtualplayer) { virtualplayer = true; } else { virtualplayer = false; }
 
         }
-    } 
+
+        private void toolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+
+        }
+    }
 }
 
 
