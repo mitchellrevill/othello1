@@ -258,7 +258,7 @@ namespace eothello
 
         private void VirtualPlayerTurn()
         {
-            int maxDepth = 10; 
+            int maxDepth = 5; 
             int timeThreshold = 1000; 
 
             StartStopwatch(); 
@@ -394,7 +394,7 @@ namespace eothello
        
         private int Minimax(int[,] board, int depth, int player, int originalPlayer, int alpha, int beta)
         {
-            if (depth == 0)
+            if (depth == 0 || IsTerminal(board))
             {
                 combinationCount++;
                 return EvaluateBoard(board, originalPlayer);
@@ -455,8 +455,12 @@ namespace eothello
         }
 
 
-
-
+        private bool IsTerminal(int[,] board)
+        {
+            // Implement your terminal state conditions here, e.g., no valid moves left
+            // or a full board.
+            return !AnyValidMoveLeft(1) && !AnyValidMoveLeft(10);
+        }
 
         private int GetOpponent(int player)
         {
