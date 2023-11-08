@@ -34,7 +34,7 @@ namespace eothello
         private Stopwatch stopwatch = new Stopwatch();
         private int combinationCount = 0;
         int checkBoxClicks = 1;
-
+        int virtualboxclicks = 1;
         public ONielo()
         {
             InitializeComponent();
@@ -664,7 +664,7 @@ namespace eothello
 
             string ActiveDir = AppDomain.CurrentDomain.BaseDirectory;
             string SaveDir = Path.Combine(ActiveDir, "saves", "game_save.json");
-
+            string SaveDirPath = Path.Combine(ActiveDir, "saves");
             int[,] NewBoardArray = new int[NUM_OF_BOARD_ROWS, NUM_OF_BOARD_COL];
             NewBoardArray = gameBoardData;
 
@@ -692,6 +692,11 @@ namespace eothello
                 SaveName = saveName
             };
 
+
+            if (!File.Exists(SaveDirPath))
+            {
+                Directory.CreateDirectory(SaveDirPath);
+            }
 
             string saveDataJson = JsonSerializer.Serialize(saveData);
             Console.WriteLine(num);
@@ -906,7 +911,20 @@ namespace eothello
 
         private void virtualPlayerToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (!virtualplayer) { virtualplayer = true; } else { virtualplayer = false; }
+
+            if (virtualboxclicks == 1)
+            {
+
+                virtualplayer = true;
+                virtualPlayerToolStripMenuItem.CheckState = CheckState.Checked;
+                virtualboxclicks--;
+            }
+            else
+            {
+                virtualplayer = false;
+                virtualboxclicks++;
+                virtualPlayerToolStripMenuItem.CheckState = CheckState.Unchecked;
+            }
         }
     }
 }
