@@ -767,6 +767,7 @@ namespace eothello
       
         public void SaveFilesload()
         {
+            
             loadGameToolStripMenuItem.DropDownItems.Clear();
             string ActiveDir = AppDomain.CurrentDomain.BaseDirectory;
             string SaveFilePath = Path.Combine(ActiveDir, "saves", "game_save.json");
@@ -796,11 +797,13 @@ namespace eothello
                 var LoadedGame = new ToolStripMenuItem(name);
                 LoadedGame.Click += (sender, e) =>
                 {
+                    
                     textBox1.Text = item.BlackCounterName;
                     textBox2.Text = item.WhiteCounterName;
                     gameBoardData = multidimensionalArray;
                     TurnCounter = item.TurnCounter;
                     _gameBoardGui.UpdateBoardGui(gameBoardData);
+                    DisposeOfValidMoves();
                     IterateThroughBoard();
                     MessageBox.Show("Loading game: " + " " + name);
 
