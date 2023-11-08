@@ -1,10 +1,15 @@
 using GameboardGUI;
+using Microsoft.VisualBasic;
 using System.Text.Json;
 using System.Net.Security;
 using System.Speech.Synthesis;
 using System.Drawing.Drawing2D;
 using System.Drawing;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
+using static eothello.ONielo;
+using System.Windows.Forms;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace eothello
 {
@@ -50,9 +55,20 @@ namespace eothello
                 SpeakSettings();
                 NumberSet();
                 string ActiveDir = AppDomain.CurrentDomain.BaseDirectory;
-                string SaveDir = Path.Combine(ActiveDir, "saves");
-                string[] saveFiles = Directory.GetFiles(SaveDir, "*.json");
-                if (saveFiles.Length > 0) { SaveFilesload(saveFiles); }
+                string SaveFilePath = Path.Combine(ActiveDir, "saves", "game_save.json");
+                var options = new JsonSerializerOptions
+                {
+                    WriteIndented = false
+                };
+
+                if (File.Exists(SaveFilePath))
+                {
+                    SaveFilesload();
+                }
+
+
+
+
             }
             catch (Exception ex)
             {
@@ -253,14 +269,9 @@ namespace eothello
 
         }
 
-
-
-
-
-        private void VirtualPlayerTurn()
+        private async Task VirtualPlayerTurn()
         {
-
-            int maxDepth = 5;
+            int maxDepth = 100;
             int timeThreshold = 1000;
 
             StartStopwatch();
@@ -288,7 +299,7 @@ namespace eothello
                         {
                             int[,] clonedBoard = (int[,])gameBoardData.Clone();
                             SetAITile(row, col, clonedBoard, player);
-                            int score = Minimax(clonedBoard, depth - 1, opponent, player, alpha, beta);
+                            int score = await Task.Run(() => Minimax(clonedBoard, depth - 1, opponent, player, alpha, beta));
 
                             if (score > currentBestScore)
                             {
@@ -297,9 +308,7 @@ namespace eothello
                                 bestCol = col;
                             }
 
-
                             alpha = Math.Max(alpha, currentBestScore);
-
 
                             if (beta <= alpha)
                             {
@@ -314,32 +323,21 @@ namespace eothello
                     break;
                 }
 
-
                 bestScore = currentBestScore;
             }
 
-
             if (bestRow != -1 && bestCol != -1)
             {
-
-
-
-
                 var (isValid, capturedPoints) = IsValidMove(bestRow, bestCol, gameBoardData, 10);
 
                 if (isValid)
                 {
                     int color = 10;
                     DisposeOfValidMoves();
-
                     _gameBoardGui.SetTile(bestRow, bestCol, color.ToString());
                     gameBoardData[bestRow, bestCol] = TurnCounter;
-
                     var coordinate = (bestRow.ToString() + "," + bestCol.ToString());
-
-
                     string GameTiles = string.Join(", ", capturedPoints);
-
 
                     foreach (Point capturedPoint in capturedPoints)
                     {
@@ -350,7 +348,6 @@ namespace eothello
                     Console.WriteLine(GameTiles);
                     if (toolStripMenuItem1.Checked)
                     {
-
                         speaker.SpeakAsync("Player placed counter at " + coordinate);
                         speaker.SpeakAsync("tile has flipped at " + GameTiles);
 
@@ -362,10 +359,8 @@ namespace eothello
                         {
                             speaker.SpeakAsync("Blacks Turn");
                         }
-
-
-
                     }
+
                     Console.WriteLine(TurnCounter);
                     TurnCounter = (TurnCounter == 1) ? 10 : 1;
                     Console.WriteLine(TurnCounter);
@@ -375,7 +370,8 @@ namespace eothello
                 UserInterface();
             }
         }
-        private void StartStopwatch()
+
+        private async Task StartStopwatch()
         {
             stopwatch.Start();
         }
@@ -394,7 +390,7 @@ namespace eothello
         }
 
 
-        private int Minimax(int[,] board, int depth, int player, int originalPlayer, int alpha, int beta)
+        private async Task<int> Minimax(int[,] board, int depth, int player, int originalPlayer, int alpha, int beta)
         {
             if (depth == 0 || IsTerminal(board))
             {
@@ -415,7 +411,7 @@ namespace eothello
                         {
                             int[,] clonedBoard = (int[,])board.Clone();
                             SetAITile(row, col, clonedBoard, player);
-                            int score = Minimax(clonedBoard, depth - 1, GetOpponent(player), originalPlayer, alpha, beta);
+                            int score = await Minimax(clonedBoard, depth - 1, GetOpponent(player), originalPlayer, alpha, beta);
                             bestScore = Math.Max(bestScore, score);
                             alpha = Math.Max(alpha, bestScore);
                             if (beta <= alpha)
@@ -441,7 +437,7 @@ namespace eothello
                         {
                             int[,] clonedBoard = (int[,])board.Clone();
                             SetAITile(row, col, clonedBoard, player);
-                            int score = Minimax(clonedBoard, depth - 1, GetOpponent(player), originalPlayer, alpha, beta);
+                            int score = await Minimax(clonedBoard, depth - 1, GetOpponent(player), originalPlayer, alpha, beta);
                             bestScore = Math.Min(bestScore, score);
                             beta = Math.Min(beta, bestScore);
                             if (beta <= alpha)
@@ -610,8 +606,8 @@ namespace eothello
             SpeakItem.Click += (sender, e) =>
             {
                 checkBoxClicks += 1;
-                
-                if (checkBoxClicks % 2 == 0) 
+
+                if (checkBoxClicks % 2 == 0)
                 {
                     try
                     {
@@ -624,14 +620,14 @@ namespace eothello
                     SpeakItem.CheckState = CheckState.Checked;
                     speaker.SpeakAsync("Dictation is on.");
                 }
-                else 
+                else
                 {
                     SpeakItem.CheckState = CheckState.Unchecked;
                 }
             };
 
         }
-        private void newGameToolStripMenuItem_Click(object sender, EventArgs e)
+        private void newGameToolStripMenuItem_Click_1(object sender, EventArgs e)
         {
             DialogResult result = MessageBox.Show("Unsaved progress, Do you want to continue?", "Confirmation", MessageBoxButtons.YesNo);
             if (result == DialogResult.Yes)
@@ -648,14 +644,26 @@ namespace eothello
         }
         private void saveGameToolStripMenuItem1_Click(object sender, EventArgs e)
         {
+            var localDate = DateTime.Now;
+            string defaultString = localDate.ToString();
+
+
+            var saveName = Microsoft.VisualBasic.Interaction.InputBox("Please Enter Save Name", "Save Game", defaultString);
+
+            if (string.IsNullOrEmpty(saveName))
+            {
+                saveName = defaultString;
+            }
+
+
+
             if (!saveGameEnabled)
             {
-                return; // Exit the event handler if saving is disabled
+                return;
             }
 
-
             string ActiveDir = AppDomain.CurrentDomain.BaseDirectory;
-            string SaveDir = Path.Combine(ActiveDir, "saves");
+            string SaveDir = Path.Combine(ActiveDir, "saves", "game_save.json");
 
             int[,] NewBoardArray = new int[NUM_OF_BOARD_ROWS, NUM_OF_BOARD_COL];
             NewBoardArray = gameBoardData;
@@ -673,228 +681,187 @@ namespace eothello
                     jaggedArray[i][j] = NewBoardArray[i, j];
                 }
             }
-            var saveData = new
+
+            var saveData = new GameData
             {
                 GameBoardData = jaggedArray,
                 TurnCounter = TurnCounter,
                 BlackCounterName = textBox1.Text,
-                WhiteCounterName = textBox2.Text
+                WhiteCounterName = textBox2.Text,
+                SaveNum = num,
+                SaveName = saveName
             };
 
+
             string saveDataJson = JsonSerializer.Serialize(saveData);
+            Console.WriteLine(num);
 
-            if (num != 6)
+            if (!File.Exists(SaveDir))
             {
-                string saveFilePath = Path.Combine(SaveDir, "gamesave" + num.ToString() + ".json");
-                var TempNum = num;
-                if (!Directory.Exists(saveFilePath))
+                string jsonArray = "[" + saveDataJson + "]";
+                File.WriteAllText(SaveDir, jsonArray);
+                num = 2;
+            }
+            else if (num != 6)
+            {
+                string existingData = File.ReadAllText(SaveDir);
+                List<string> jsonDataList = new List<string>();
+
+                var regex = new Regex(@"{[^}]*}");
+                var matches = regex.Matches(existingData);
+                foreach (Match match in matches)
                 {
-                    File.WriteAllText(saveFilePath, saveDataJson);
-                }
-                else
-                {
-                    MessageBox.Show("Cmom man");
+                    jsonDataList.Add(match.Value);
                 }
 
+                jsonDataList.Add(saveDataJson);
 
-                saveFilePath = Path.Combine(SaveDir, "gamesave" + TempNum.ToString() + ".json");
-                List<string> list = new List<string>();
+                string updatedJsonArray = "[" + string.Join("," + Environment.NewLine, jsonDataList) + "]";
 
-
-                if (num == 2)
-                {
-                    TempNum--;
-                    var saveFilePath1 = Path.Combine(SaveDir, "gamesave" + TempNum.ToString() + ".json");
-                    list.Add(saveFilePath1);
-                }
-                list.Add(saveFilePath);
-                string[] saveFiles = list.ToArray();
-                SaveFilesload(saveFiles);
-
+                File.WriteAllText(SaveDir, updatedJsonArray);
+                SaveFilesload();
+                num++;
             }
             else
             {
-                string Overwrite = Path.Combine(ActiveDir, "saves");
-                string[] saveFiles = Directory.GetFiles(SaveDir, "*.json");
-                MessageBox.Show("Maximum Save Game Reached, Please select save to overwrite", "Error", MessageBoxButtons.OK);
-                foreach (string saveFile in saveFiles)
-                {
+                MessageBox.Show("Save Folder is full select which save to overwrite");
+                string existingData = File.ReadAllText(SaveDir);
+                List<string> jsonDataList = new List<string>();
 
-                    string fileName = Path.GetFileNameWithoutExtension(saveFile);
-                    var LoadedGame = new ToolStripMenuItem(fileName);
-                    saveGameEnabled = false;
+                var regex = new Regex(@"{[^}]*}");
+                var matches = regex.Matches(existingData);
+                foreach (Match match in matches)
+                {
+                    jsonDataList.Add(match.Value);
+                }
+
+                List<GameData> saveDataList = JsonSerializer.Deserialize<List<GameData>>(existingData);
+
+                int tempnum1 = 1;
+                foreach (string item in jsonDataList)
+                {
+                    int currentTempNum = tempnum1; // Capture the current value of tempnum1 in a local variable
+                    var name = saveDataList[currentTempNum - 1].SaveName;
+                    var LoadedGame = new ToolStripMenuItem(name);
+                    LoadedGame.Name = name; // Set the Name property to the new name
                     LoadedGame.Click += (sender, e) =>
                     {
-                        string fileName = Path.GetFileNameWithoutExtension(saveFile);
-                        OverWriteData(fileName);
-                    };
 
+                        OverWriteData(currentTempNum, saveData, name);
+                        MessageBox.Show("Save Overwritten");
+                        SaveFilesload();
+                        saveGameToolStripMenuItem1.DropDownItems.Clear();
+                    };
                     saveGameToolStripMenuItem1.DropDownItems.Add(LoadedGame);
+                    tempnum1++;
+
                 }
             }
         }
 
-        public void SaveFilesload(string[] Dir)
+      
+        public void SaveFilesload()
         {
-
+            loadGameToolStripMenuItem.DropDownItems.Clear();
             string ActiveDir = AppDomain.CurrentDomain.BaseDirectory;
-            string SaveDir = Path.Combine(ActiveDir, "saves");
-            string[] saveFiles = Dir.Select(x => x.ToString()).ToArray();
-            int SaveNum = saveFiles.Length;
-
-            if (num > 1)
+            string SaveFilePath = Path.Combine(ActiveDir, "saves", "game_save.json");
+            string jsonData = File.ReadAllText(SaveFilePath);
+            var options = new JsonSerializerOptions
             {
-                num++;
-                foreach (string saveFile in saveFiles)
+                WriteIndented = false
+            };
+            List<GameData> saveDataList = JsonSerializer.Deserialize<List<GameData>>(jsonData);
+
+            foreach (var item in saveDataList)
+            {
+                var jaggedArray = item.GameBoardData;
+                int numRows = jaggedArray.Length;
+                int numCols = jaggedArray[0].Length;
+                int[,] multidimensionalArray = new int[numRows, numCols];
+                var name = item.SaveName;
+
+                for (int i = 0; i < numRows; i++)
                 {
-
-                    string fileName = Path.GetFileNameWithoutExtension(saveFile);
-                    var LoadedGame = new ToolStripMenuItem(fileName);
-
-
-                    LoadedGame.Click += (sender, e) =>
+                    for (int j = 0; j < numCols; j++)
                     {
-                        var result = DecodeJSON(saveFile);
-                        var dynamicData = result.DynamicData;
-                        var multidimensionalArray = result.MultidimensionalArray;
-                        int turnCounter = dynamicData.TurnCounter;
-
-                        textBox1.Text = dynamicData.BlackCounterName;
-                        textBox2.Text = dynamicData.WhiteCounterName;
-                        gameBoardData = multidimensionalArray;
-                        TurnCounter = turnCounter;
-                        _gameBoardGui.UpdateBoardGui(gameBoardData);
-                        IterateThroughBoard();
-                        MessageBox.Show("Loading game: " + fileName);
-                    };
-
-                    loadGameToolStripMenuItem.DropDownItems.Add(LoadedGame);
+                        multidimensionalArray[i, j] = jaggedArray[i][j];
+                    }
                 }
-            }
-            else
-            {
-                num++;
-                var saveFile = saveFiles[0];
-                string fileName = Path.GetFileNameWithoutExtension(saveFile);
-                var LoadedGame = loadGameToolStripMenuItem;
 
+                var LoadedGame = new ToolStripMenuItem(name);
                 LoadedGame.Click += (sender, e) =>
                 {
-                    var result = DecodeJSON(saveFile);
-                    var dynamicData = result.DynamicData;
-                    var multidimensionalArray = result.MultidimensionalArray;
-                    int turnCounter = dynamicData.TurnCounter;
-
-                    textBox1.Text = dynamicData.BlackCounterName;
-                    textBox2.Text = dynamicData.WhiteCounterName;
+                    textBox1.Text = item.BlackCounterName;
+                    textBox2.Text = item.WhiteCounterName;
                     gameBoardData = multidimensionalArray;
-                    TurnCounter = turnCounter;
+                    TurnCounter = item.TurnCounter;
                     _gameBoardGui.UpdateBoardGui(gameBoardData);
                     IterateThroughBoard();
-                    MessageBox.Show("Loading game: " + fileName);
-                };
+                    MessageBox.Show("Loading game: " + " " + name);
 
+                };
+                    loadGameToolStripMenuItem.DropDownItems.Add(LoadedGame);  
             }
+
         }
-        public void OverWriteData(string filename)
+        public void OverWriteData(int tempnum, GameData newGameData, string name)
         {
             string ActiveDir = AppDomain.CurrentDomain.BaseDirectory;
-            string Overwrite = Path.Combine(ActiveDir, "saves");
-
-
-            int[,] NewBoardArray = new int[NUM_OF_BOARD_ROWS, NUM_OF_BOARD_COL];
-            NewBoardArray = gameBoardData;
-
-            int numRows = NewBoardArray.GetLength(0);
-            int numCols = NewBoardArray.GetLength(1);
-
-            int[][] jaggedArray = new int[numRows][];
-
-            for (int i = 0; i < numRows; i++)
+            string SaveFilePath = Path.Combine(ActiveDir, "saves", "game_save.json");
+            string jsonData = File.ReadAllText(SaveFilePath);
+            var options = new JsonSerializerOptions
             {
-                jaggedArray[i] = new int[numCols];
-                for (int j = 0; j < numCols; j++)
-                {
-                    jaggedArray[i][j] = NewBoardArray[i, j];
-                }
-            }
-            var saveData = new
-            {
-                GameBoardData = jaggedArray,
-                TurnCounter = TurnCounter,
-                BlackCounterName = textBox1.Text,
-                WhiteCounterName = textBox2.Text
+                WriteIndented = false
             };
+            List<GameData> saveDataList = JsonSerializer.Deserialize<List<GameData>>(jsonData);
 
-            string saveDataJson = JsonSerializer.Serialize(saveData);
-
-
-            if (!Directory.Exists(Overwrite))
+            if (tempnum >= 0 && tempnum < saveDataList.Count + 1)
             {
-                Directory.CreateDirectory(Overwrite);
-            }
 
-            string saveFilePath = Path.Combine(Overwrite, filename + ".json");
-            var TempNum = num;
-            if (!Directory.Exists(saveFilePath))
-            {
-                File.WriteAllText(saveFilePath, saveDataJson);
-                MessageBox.Show("Save Overwritten");
-            }
-            else
-            {
-                MessageBox.Show("Cmom man");
+                var CurrentFileNum = tempnum;
+                tempnum--;
+
+                saveDataList[tempnum] = newGameData;
+
+                // Keep the original SaveNum in the new game data
+                saveDataList[tempnum].SaveNum = CurrentFileNum;
+                string updatedJsonArray = JsonSerializer.Serialize(saveDataList);
+                File.WriteAllText(SaveFilePath, updatedJsonArray);
             }
         }
+
+
+
+
         public void NumberSet()
         {
             string ActiveDir = AppDomain.CurrentDomain.BaseDirectory;
-            string SaveDir = Path.Combine(ActiveDir, "saves");
-            string[] AllFiles = Directory.GetFiles(SaveDir, "*.json");
-            foreach (string filePath in AllFiles)
-            {
-                string fileName = Path.GetFileNameWithoutExtension(filePath);
-                var parts = fileName.Split("gamesave");
-                if (parts.Length > 1)
-                {
-                    if (int.TryParse(parts[1], out int fileNum))
-                    {
-                        if (fileNum > num)
-                        {
-                            num = fileNum;
+            string SaveFilePath = Path.Combine(ActiveDir, "saves", "game_save.json");
 
-                            string[] AlFiles = Directory.GetFiles(SaveDir, "*.json");
-                            if (AlFiles.Length > 0)
-                            {
-                                FileFirst = true;
-                            }
-                        }
+            if (File.Exists(SaveFilePath))
+            {
+                string jsonData = File.ReadAllText(SaveFilePath);
+
+                if (jsonData == "")
+                {
+                    num = 1;
+                    return;
+                }
+                List<GameData> saveDataList = JsonSerializer.Deserialize<List<GameData>>(jsonData);
+
+                int highestSaveNum = -1;
+
+                foreach (var data in saveDataList)
+                {
+                    if (data.SaveNum > highestSaveNum)
+                    {
+                        highestSaveNum = data.SaveNum;
                     }
                 }
+                if (highestSaveNum == 5) { highestSaveNum++; }
+                num = highestSaveNum;
+
             }
-        }
-
-
-        private (GameData DynamicData, int[,] MultidimensionalArray) DecodeJSON(string dir)
-        {
-            string fileName = Path.GetFileNameWithoutExtension(dir);
-            var jsondata = File.ReadAllText("saves/" + fileName + ".json");
-            var dynamicData = JsonSerializer.Deserialize<GameData>(jsondata);
-            var jaggedArray = dynamicData.GameBoardData;
-            int numRows = jaggedArray.Length;
-            int numCols = jaggedArray[0].Length;
-
-            int[,] multidimensionalArray = new int[numRows, numCols];
-
-            for (int i = 0; i < numRows; i++)
-            {
-                for (int j = 0; j < numCols; j++)
-                {
-                    multidimensionalArray[i, j] = jaggedArray[i][j];
-                }
-            }
-
-            return (dynamicData, multidimensionalArray);
         }
 
 
@@ -905,7 +872,11 @@ namespace eothello
             public int TurnCounter { get; set; }
             public string BlackCounterName { get; set; }
             public string WhiteCounterName { get; set; }
+
+            public int SaveNum { get; set; }
+            public string SaveName { get; set; }
         }
+
 
         private void aboutMeToolStripMenuItem1_Click(object sender, EventArgs e)
         {
@@ -913,15 +884,29 @@ namespace eothello
             f2.Show();
         }
 
-        private void virtualPlayerToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (!virtualplayer) { virtualplayer = true; } else { virtualplayer = false; }
-
-        }
+       
 
         private void toolStripMenuItem1_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void aboutMeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+             Form2 f2 = new Form2();
+             f2.Show();
+
+        }
+
+        private void gameToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void virtualPlayerToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (!virtualplayer) { virtualplayer = true; } else { virtualplayer = false; }
         }
     }
 }
