@@ -35,11 +35,18 @@ namespace eothello
         private int combinationCount = 0;
         int checkBoxClicks = 1;
         int virtualboxclicks = 1;
+        public int SerialID = 0;
+
+
+
         public ONielo()
         {
+            Random rnd = new Random();
+            SerialID = rnd.Next(1, 10000);
+
             InitializeComponent();
             Point top = new Point(30, 30);
-            Point bottom = new Point(120, 120);
+            Point bottom = new Point(130, 130);
 
 
 
@@ -271,7 +278,7 @@ namespace eothello
 
         private async Task VirtualPlayerTurn()
         {
-            int maxDepth = 100;
+            int maxDepth = 5;
             int timeThreshold = 1000;
 
             StartStopwatch();
@@ -638,22 +645,32 @@ namespace eothello
                 _gameBoardGui.UpdateBoardGui(gameBoardData);
                 TurnCounter = 1;
                 IterateThroughBoard();
+                Random rnd = new Random();
+                SerialID = rnd.Next(0, 10000);
 
             }
 
         }
+
+
+
+        public bool SaveGameNormal()
+        {
+            return true;
+        }
         private void saveGameToolStripMenuItem1_Click(object sender, EventArgs e)
         {
+
+
+            var saveName = "Blank";
+
+
+
+
             var localDate = DateTime.Now;
             string defaultString = localDate.ToString();
 
 
-            var saveName = Microsoft.VisualBasic.Interaction.InputBox("Please Enter Save Name", "Save Game", defaultString);
-
-            if (string.IsNullOrEmpty(saveName))
-            {
-                saveName = defaultString;
-            }
 
 
 
@@ -662,9 +679,7 @@ namespace eothello
                 return;
             }
 
-            string ActiveDir = AppDomain.CurrentDomain.BaseDirectory;
-            string SaveDir = Path.Combine(ActiveDir, "saves", "game_save.json");
-            string SaveDirPath = Path.Combine(ActiveDir, "saves");
+
             int[,] NewBoardArray = new int[NUM_OF_BOARD_ROWS, NUM_OF_BOARD_COL];
             NewBoardArray = gameBoardData;
 
@@ -682,6 +697,7 @@ namespace eothello
                 }
             }
 
+
             var saveData = new GameData
             {
                 GameBoardData = jaggedArray,
@@ -689,8 +705,53 @@ namespace eothello
                 BlackCounterName = textBox1.Text,
                 WhiteCounterName = textBox2.Text,
                 SaveNum = num,
-                SaveName = saveName
+                SaveName = saveName,
+                SerialID = SerialID
             };
+
+            string ActiveDir = AppDomain.CurrentDomain.BaseDirectory;
+            string SaveDir = Path.Combine(ActiveDir, "saves", "game_save.json");
+            string SaveDirPath = Path.Combine(ActiveDir, "saves");
+            if (!File.Exists(SaveDirPath))
+            {
+                Directory.CreateDirectory(SaveDirPath);
+            }
+            List<string> jsonDataList = new List<string>();
+            if (File.Exists(SaveDir))
+            {
+                string existingData = File.ReadAllText(SaveDir);
+
+                List<GameData> saveDataList = JsonSerializer.Deserialize<List<GameData>>(existingData);
+
+
+                var currentnum = num;
+                currentnum--;
+                if (saveDataList[currentnum].SerialID == SerialID)
+                {
+                    var SaveAsGame = new ToolStripMenuItem("Save Game");
+
+                    SaveAsGame.Click += (sender, e) =>
+                    {
+                        OverWriteData(num, saveData, saveName);
+                    };
+                    gameToolStripMenuItem.DropDownItems.Add(SaveAsGame);
+                    saveGameToolStripMenuItem.Text = "Save Game As";
+
+                }
+
+
+            }
+
+            saveName = Microsoft.VisualBasic.Interaction.InputBox("Please Enter Save Name", "Save Game", defaultString);
+
+            if (string.IsNullOrEmpty(saveName))
+            {
+                return;
+            }
+
+
+
+
 
 
             if (!File.Exists(SaveDirPath))
@@ -709,9 +770,8 @@ namespace eothello
             }
             else if (num != 6)
             {
-                string existingData = File.ReadAllText(SaveDir);
-                List<string> jsonDataList = new List<string>();
 
+                string existingData = File.ReadAllText(SaveDir);
                 var regex = new Regex(@"{[^}]*}");
                 var matches = regex.Matches(existingData);
                 foreach (Match match in matches)
@@ -729,9 +789,11 @@ namespace eothello
             }
             else
             {
+
+
                 MessageBox.Show("Save Folder is full select which save to overwrite");
                 string existingData = File.ReadAllText(SaveDir);
-                List<string> jsonDataList = new List<string>();
+                List<GameData> saveDataList = JsonSerializer.Deserialize<List<GameData>>(existingData);
 
                 var regex = new Regex(@"{[^}]*}");
                 var matches = regex.Matches(existingData);
@@ -740,7 +802,7 @@ namespace eothello
                     jsonDataList.Add(match.Value);
                 }
 
-                List<GameData> saveDataList = JsonSerializer.Deserialize<List<GameData>>(existingData);
+
 
                 int tempnum1 = 1;
                 foreach (string item in jsonDataList)
@@ -764,10 +826,10 @@ namespace eothello
             }
         }
 
-      
+
         public void SaveFilesload()
         {
-            
+
             loadGameToolStripMenuItem.DropDownItems.Clear();
             string ActiveDir = AppDomain.CurrentDomain.BaseDirectory;
             string SaveFilePath = Path.Combine(ActiveDir, "saves", "game_save.json");
@@ -797,7 +859,7 @@ namespace eothello
                 var LoadedGame = new ToolStripMenuItem(name);
                 LoadedGame.Click += (sender, e) =>
                 {
-                    
+
                     textBox1.Text = item.BlackCounterName;
                     textBox2.Text = item.WhiteCounterName;
                     gameBoardData = multidimensionalArray;
@@ -806,9 +868,10 @@ namespace eothello
                     DisposeOfValidMoves();
                     IterateThroughBoard();
                     MessageBox.Show("Loading game: " + " " + name);
+                    SerialID = item.SerialID;
 
                 };
-                    loadGameToolStripMenuItem.DropDownItems.Add(LoadedGame);  
+                loadGameToolStripMenuItem.DropDownItems.Add(LoadedGame);
             }
 
         }
@@ -883,6 +946,8 @@ namespace eothello
 
             public int SaveNum { get; set; }
             public string SaveName { get; set; }
+
+            public int SerialID { get; set; }
         }
 
 
@@ -892,7 +957,7 @@ namespace eothello
             f2.Show();
         }
 
-       
+
 
         private void toolStripMenuItem1_Click(object sender, EventArgs e)
         {
@@ -902,8 +967,8 @@ namespace eothello
         private void aboutMeToolStripMenuItem_Click(object sender, EventArgs e)
         {
 
-             Form2 f2 = new Form2();
-             f2.Show();
+            Form2 f2 = new Form2();
+            f2.Show();
 
         }
 
@@ -931,8 +996,3 @@ namespace eothello
         }
     }
 }
-
-
-
-
-
