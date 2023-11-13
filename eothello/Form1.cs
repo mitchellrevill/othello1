@@ -66,6 +66,7 @@ namespace eothello
                 {
                     SaveFilesload();
                 }
+                else { loadGameToolStripMenuItem.Visible = false; }
 
 
 
@@ -696,6 +697,7 @@ namespace eothello
             if (!File.Exists(SaveDirPath))
             {
                 Directory.CreateDirectory(SaveDirPath);
+
             }
 
             string saveDataJson = JsonSerializer.Serialize(saveData);
@@ -706,6 +708,7 @@ namespace eothello
                 string jsonArray = "[" + saveDataJson + "]";
                 File.WriteAllText(SaveDir, jsonArray);
                 num = 2;
+                loadGameToolStripMenuItem.Visible = true;
             }
             else if (num != 6)
             {
