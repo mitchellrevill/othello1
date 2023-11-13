@@ -35,6 +35,7 @@ namespace eothello
         private int combinationCount = 0;
         int checkBoxClicks = 1;
         int virtualboxclicks = 1;
+        int informtationboxclick = 0;
         public ONielo()
         {
             InitializeComponent();
@@ -271,7 +272,7 @@ namespace eothello
 
         private async Task VirtualPlayerTurn()
         {
-            int maxDepth = 100;
+            int maxDepth = 5;
             int timeThreshold = 1000;
 
             StartStopwatch();
@@ -455,8 +456,7 @@ namespace eothello
 
         private bool IsTerminal(int[,] board)
         {
-            // Implement your terminal state conditions here, e.g., no valid moves left
-            // or a full board.
+
             return !AnyValidMoveLeft(1) && !AnyValidMoveLeft(10);
         }
 
@@ -764,10 +764,10 @@ namespace eothello
             }
         }
 
-      
+
         public void SaveFilesload()
         {
-            
+
             loadGameToolStripMenuItem.DropDownItems.Clear();
             string ActiveDir = AppDomain.CurrentDomain.BaseDirectory;
             string SaveFilePath = Path.Combine(ActiveDir, "saves", "game_save.json");
@@ -797,7 +797,7 @@ namespace eothello
                 var LoadedGame = new ToolStripMenuItem(name);
                 LoadedGame.Click += (sender, e) =>
                 {
-                    
+
                     textBox1.Text = item.BlackCounterName;
                     textBox2.Text = item.WhiteCounterName;
                     gameBoardData = multidimensionalArray;
@@ -808,7 +808,7 @@ namespace eothello
                     MessageBox.Show("Loading game: " + " " + name);
 
                 };
-                    loadGameToolStripMenuItem.DropDownItems.Add(LoadedGame);  
+                loadGameToolStripMenuItem.DropDownItems.Add(LoadedGame);
             }
 
         }
@@ -892,7 +892,7 @@ namespace eothello
             f2.Show();
         }
 
-       
+
 
         private void toolStripMenuItem1_Click(object sender, EventArgs e)
         {
@@ -902,8 +902,8 @@ namespace eothello
         private void aboutMeToolStripMenuItem_Click(object sender, EventArgs e)
         {
 
-             Form2 f2 = new Form2();
-             f2.Show();
+            Form2 f2 = new Form2();
+            f2.Show();
 
         }
 
@@ -928,6 +928,56 @@ namespace eothello
                 virtualboxclicks++;
                 virtualPlayerToolStripMenuItem.CheckState = CheckState.Unchecked;
             }
+        }
+
+        private void informationPanelToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (informtationboxclick == 1)
+            {
+                textBox1.Show();
+                textBox2.Show();
+                label1.Show();
+                label2.Show();
+                pictureBox1.Show();
+                pictureBox2.Show();
+                pictureBox3.Show();
+                pictureBox4.Show();
+                pictureBox5.Show();
+                informtationboxclick--;
+                informationPanelToolStripMenuItem.CheckState = CheckState.Checked;
+            }
+            else
+            {
+                textBox1.Hide();
+                textBox2.Hide();
+                label1.Hide();
+                label2.Hide();
+                pictureBox1.Hide();
+                pictureBox2.Hide();
+                pictureBox3.Hide();
+                pictureBox4.Hide();
+                pictureBox5.Hide();
+                informtationboxclick++;
+                informationPanelToolStripMenuItem.CheckState = CheckState.Unchecked;
+            }
+        }
+
+        private void ONielo_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            DialogResult result = MessageBox.Show("Unsaved progress, Do you want to continue?", "Confirmation", MessageBoxButtons.YesNo);
+            if (result == DialogResult.Yes)
+            {
+
+            }
+            else
+            {
+                e.Cancel = true;
+            }
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.Close();
         }
     }
 }
