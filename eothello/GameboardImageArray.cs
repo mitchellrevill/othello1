@@ -47,7 +47,7 @@ namespace GameboardGUI
         /// <summary>
         /// GImageArray is the constructor and generates an Array of Images from an int array sent to it. 
         /// </summary>
-        /// <param name="parentForm">This is the Windows Forms object on which the gameboard tiles will be displayed.</param>
+        /// This is the Windows Forms object on which the gameboard tiles will be displayed.</param>
         /// <param name="gameBoardStateArray">The int Array of game state data</param>
         /// <param name="topY">The position of the top left corner of the game board relative to the parentForm's top border</param>
         /// <param name="topX">The position of the top left corner of the game board relative to the parentForm's left border</param>
