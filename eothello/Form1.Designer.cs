@@ -29,278 +29,292 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ONielo));
-            menuStrip1 = new MenuStrip();
-            gameToolStripMenuItem = new ToolStripMenuItem();
-            newGameToolStripMenuItem = new ToolStripMenuItem();
-            saveGameToolStripMenuItem1 = new ToolStripMenuItem();
-            loadGameToolStripMenuItem = new ToolStripMenuItem();
-            exitToolStripMenuItem = new ToolStripMenuItem();
-            settingsToolStripMenuItem = new ToolStripMenuItem();
-            toolStripMenuItem1 = new ToolStripMenuItem();
-            virtualPlayerToolStripMenuItem = new ToolStripMenuItem();
-            informationPanelToolStripMenuItem = new ToolStripMenuItem();
-            helpToolStripMenuItem = new ToolStripMenuItem();
-            aboutMeToolStripMenuItem = new ToolStripMenuItem();
-            pictureBox1 = new PictureBox();
-            pictureBox2 = new PictureBox();
-            pictureBox3 = new PictureBox();
-            pictureBox4 = new PictureBox();
-            pictureBox5 = new PictureBox();
-            label1 = new Label();
-            label2 = new Label();
-            textBox1 = new TextBox();
-            textBox2 = new TextBox();
-            saveGameToolStripMenuItem = new ToolStripDropDownMenu();
-            menuStrip1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)pictureBox2).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)pictureBox3).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)pictureBox4).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)pictureBox5).BeginInit();
-            SuspendLayout();
+            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            this.GameSettingsMenu = new System.Windows.Forms.ToolStripMenuItem();
+            this.NewGameMenu = new System.Windows.Forms.ToolStripMenuItem();
+            this.SaveGameMenu = new System.Windows.Forms.ToolStripMenuItem();
+            this.LoadGameMenu = new System.Windows.Forms.ToolStripMenuItem();
+            this.ExitMenu = new System.Windows.Forms.ToolStripMenuItem();
+            this.SettingsMenu = new System.Windows.Forms.ToolStripMenuItem();
+            this.SpeakMenu = new System.Windows.Forms.ToolStripMenuItem();
+            this.VirtualMenu = new System.Windows.Forms.ToolStripMenuItem();
+            this.InformationPanelMenu = new System.Windows.Forms.ToolStripMenuItem();
+            this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.aboutMeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.BackGroundBanner = new System.Windows.Forms.PictureBox();
+            this.WhitePicture = new System.Windows.Forms.PictureBox();
+            this.BlackPicture = new System.Windows.Forms.PictureBox();
+            this.HighlightIndicator1 = new System.Windows.Forms.PictureBox();
+            this.HighLightIndicator2 = new System.Windows.Forms.PictureBox();
+            this.CounterBlack = new System.Windows.Forms.Label();
+            this.CounterWhite = new System.Windows.Forms.Label();
+            this.PlayerNameLabel = new System.Windows.Forms.TextBox();
+            this.PlayerNameLabel2 = new System.Windows.Forms.TextBox();
+            this.saveGameToolStripMenuItem = new System.Windows.Forms.ToolStripDropDownMenu();
+            this.menuStrip1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.BackGroundBanner)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.WhitePicture)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.BlackPicture)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.HighlightIndicator1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.HighLightIndicator2)).BeginInit();
+            this.SuspendLayout();
             // 
             // menuStrip1
             // 
-            menuStrip1.Items.AddRange(new ToolStripItem[] { gameToolStripMenuItem, settingsToolStripMenuItem, helpToolStripMenuItem });
-            menuStrip1.Location = new Point(0, 0);
-            menuStrip1.Name = "menuStrip1";
-            menuStrip1.Size = new Size(784, 24);
-            menuStrip1.TabIndex = 0;
-            menuStrip1.Text = "menuStrip1";
+            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.GameSettingsMenu,
+            this.SettingsMenu,
+            this.helpToolStripMenuItem});
+            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
+            this.menuStrip1.Name = "menuStrip1";
+            this.menuStrip1.Size = new System.Drawing.Size(784, 24);
+            this.menuStrip1.TabIndex = 0;
+            this.menuStrip1.Text = "menuStrip1";
             // 
-            // gameToolStripMenuItem
+            // GameSettingsMenu
             // 
-            gameToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { newGameToolStripMenuItem, saveGameToolStripMenuItem1, loadGameToolStripMenuItem, exitToolStripMenuItem });
-            gameToolStripMenuItem.Name = "gameToolStripMenuItem";
-            gameToolStripMenuItem.Size = new Size(50, 20);
-            gameToolStripMenuItem.Text = "Game";
-            gameToolStripMenuItem.Click += gameToolStripMenuItem_Click;
+            this.GameSettingsMenu.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.NewGameMenu,
+            this.SaveGameMenu,
+            this.LoadGameMenu,
+            this.ExitMenu});
+            this.GameSettingsMenu.Name = "GameSettingsMenu";
+            this.GameSettingsMenu.Size = new System.Drawing.Size(50, 20);
+            this.GameSettingsMenu.Text = "Game";
             // 
-            // newGameToolStripMenuItem
+            // NewGameMenu
             // 
-            newGameToolStripMenuItem.Name = "newGameToolStripMenuItem";
-            newGameToolStripMenuItem.Size = new Size(180, 22);
-            newGameToolStripMenuItem.Text = "New Game";
-            newGameToolStripMenuItem.Click += newGameToolStripMenuItem_Click_1;
+            this.NewGameMenu.Name = "NewGameMenu";
+            this.NewGameMenu.Size = new System.Drawing.Size(134, 22);
+            this.NewGameMenu.Text = "New Game";
+            this.NewGameMenu.Click += new System.EventHandler(this.newGameToolStripMenuItem_Click_1);
             // 
-            // saveGameToolStripMenuItem1
+            // SaveGameMenu
             // 
-            saveGameToolStripMenuItem1.Name = "saveGameToolStripMenuItem1";
-            saveGameToolStripMenuItem1.Size = new Size(180, 22);
-            saveGameToolStripMenuItem1.Text = "Save Game";
-            saveGameToolStripMenuItem1.Click += saveGameToolStripMenuItem1_Click;
+            this.SaveGameMenu.Name = "SaveGameMenu";
+            this.SaveGameMenu.Size = new System.Drawing.Size(134, 22);
+            this.SaveGameMenu.Text = "Save Game";
+            this.SaveGameMenu.Click += new System.EventHandler(this.saveGameToolStripMenuItem1_Click);
             // 
-            // loadGameToolStripMenuItem
+            // LoadGameMenu
             // 
-            loadGameToolStripMenuItem.Name = "loadGameToolStripMenuItem";
-            loadGameToolStripMenuItem.Size = new Size(180, 22);
-            loadGameToolStripMenuItem.Text = "Load Game";
+            this.LoadGameMenu.Name = "LoadGameMenu";
+            this.LoadGameMenu.Size = new System.Drawing.Size(134, 22);
+            this.LoadGameMenu.Text = "Load Game";
             // 
-            // exitToolStripMenuItem
+            // ExitMenu
             // 
-            exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            exitToolStripMenuItem.Size = new Size(180, 22);
-            exitToolStripMenuItem.Text = "Exit";
-            exitToolStripMenuItem.Click += exitToolStripMenuItem_Click;
+            this.ExitMenu.Name = "ExitMenu";
+            this.ExitMenu.Size = new System.Drawing.Size(134, 22);
+            this.ExitMenu.Text = "Exit";
+            this.ExitMenu.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
-            // settingsToolStripMenuItem
+            // SettingsMenu
             // 
-            settingsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { toolStripMenuItem1, virtualPlayerToolStripMenuItem, informationPanelToolStripMenuItem });
-            settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
-            settingsToolStripMenuItem.Size = new Size(61, 20);
-            settingsToolStripMenuItem.Text = "Settings";
+            this.SettingsMenu.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.SpeakMenu,
+            this.VirtualMenu,
+            this.InformationPanelMenu});
+            this.SettingsMenu.Name = "SettingsMenu";
+            this.SettingsMenu.Size = new System.Drawing.Size(61, 20);
+            this.SettingsMenu.Text = "Settings";
             // 
-            // toolStripMenuItem1
+            // SpeakMenu
             // 
-            toolStripMenuItem1.Name = "toolStripMenuItem1";
-            toolStripMenuItem1.Size = new Size(169, 22);
-            toolStripMenuItem1.Text = "Speak";
+            this.SpeakMenu.Name = "SpeakMenu";
+            this.SpeakMenu.Size = new System.Drawing.Size(169, 22);
+            this.SpeakMenu.Text = "Speak";
             // 
-            // virtualPlayerToolStripMenuItem
+            // VirtualMenu
             // 
-            virtualPlayerToolStripMenuItem.Name = "virtualPlayerToolStripMenuItem";
-            virtualPlayerToolStripMenuItem.Size = new Size(169, 22);
-            virtualPlayerToolStripMenuItem.Text = "Virtual Player";
-            virtualPlayerToolStripMenuItem.Click += virtualPlayerToolStripMenuItem_Click;
+            this.VirtualMenu.Name = "VirtualMenu";
+            this.VirtualMenu.Size = new System.Drawing.Size(169, 22);
+            this.VirtualMenu.Text = "Virtual Player";
+            this.VirtualMenu.Click += new System.EventHandler(this.virtualPlayerToolStripMenuItem_Click);
             // 
-            // informationPanelToolStripMenuItem
+            // InformationPanelMenu
             // 
-            informationPanelToolStripMenuItem.Checked = true;
-            informationPanelToolStripMenuItem.CheckState = CheckState.Checked;
-            informationPanelToolStripMenuItem.Name = "informationPanelToolStripMenuItem";
-            informationPanelToolStripMenuItem.Size = new Size(169, 22);
-            informationPanelToolStripMenuItem.Text = "Information Panel";
-            informationPanelToolStripMenuItem.Click += informationPanelToolStripMenuItem_Click;
+            this.InformationPanelMenu.Checked = true;
+            this.InformationPanelMenu.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.InformationPanelMenu.Name = "InformationPanelMenu";
+            this.InformationPanelMenu.Size = new System.Drawing.Size(169, 22);
+            this.InformationPanelMenu.Text = "Information Panel";
+            this.InformationPanelMenu.Click += new System.EventHandler(this.informationPanelToolStripMenuItem_Click);
             // 
             // helpToolStripMenuItem
             // 
-            helpToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { aboutMeToolStripMenuItem });
-            helpToolStripMenuItem.Name = "helpToolStripMenuItem";
-            helpToolStripMenuItem.Size = new Size(44, 20);
-            helpToolStripMenuItem.Text = "Help";
+            this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.aboutMeToolStripMenuItem});
+            this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
+            this.helpToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
+            this.helpToolStripMenuItem.Text = "Help";
             // 
             // aboutMeToolStripMenuItem
             // 
-            aboutMeToolStripMenuItem.Name = "aboutMeToolStripMenuItem";
-            aboutMeToolStripMenuItem.Size = new Size(127, 22);
-            aboutMeToolStripMenuItem.Text = "About me";
-            aboutMeToolStripMenuItem.Click += aboutMeToolStripMenuItem_Click;
+            this.aboutMeToolStripMenuItem.Name = "aboutMeToolStripMenuItem";
+            this.aboutMeToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.aboutMeToolStripMenuItem.Text = "About me";
+            this.aboutMeToolStripMenuItem.Click += new System.EventHandler(this.aboutMeToolStripMenuItem_Click);
             // 
-            // pictureBox1
+            // BackGroundBanner
             // 
-            pictureBox1.BackColor = Color.Green;
-            pictureBox1.Location = new Point(-186, 665);
-            pictureBox1.Name = "pictureBox1";
-            pictureBox1.Size = new Size(1337, 75);
-            pictureBox1.TabIndex = 1;
-            pictureBox1.TabStop = false;
+            this.BackGroundBanner.BackColor = System.Drawing.Color.Green;
+            this.BackGroundBanner.Location = new System.Drawing.Point(-186, 665);
+            this.BackGroundBanner.Name = "BackGroundBanner";
+            this.BackGroundBanner.Size = new System.Drawing.Size(1337, 75);
+            this.BackGroundBanner.TabIndex = 1;
+            this.BackGroundBanner.TabStop = false;
             // 
-            // pictureBox2
+            // WhitePicture
             // 
-            pictureBox2.BackColor = Color.White;
-            pictureBox2.BorderStyle = BorderStyle.FixedSingle;
-            pictureBox2.Location = new Point(506, 678);
-            pictureBox2.Name = "pictureBox2";
-            pictureBox2.Padding = new Padding(30);
-            pictureBox2.Size = new Size(50, 50);
-            pictureBox2.TabIndex = 2;
-            pictureBox2.TabStop = false;
+            this.WhitePicture.BackColor = System.Drawing.Color.White;
+            this.WhitePicture.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.WhitePicture.Location = new System.Drawing.Point(506, 678);
+            this.WhitePicture.Name = "WhitePicture";
+            this.WhitePicture.Padding = new System.Windows.Forms.Padding(30);
+            this.WhitePicture.Size = new System.Drawing.Size(50, 50);
+            this.WhitePicture.TabIndex = 2;
+            this.WhitePicture.TabStop = false;
             // 
-            // pictureBox3
+            // BlackPicture
             // 
-            pictureBox3.BackColor = Color.Black;
-            pictureBox3.BorderStyle = BorderStyle.Fixed3D;
-            pictureBox3.Location = new Point(128, 678);
-            pictureBox3.Name = "pictureBox3";
-            pictureBox3.Size = new Size(50, 50);
-            pictureBox3.TabIndex = 3;
-            pictureBox3.TabStop = false;
+            this.BlackPicture.BackColor = System.Drawing.Color.Black;
+            this.BlackPicture.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.BlackPicture.Location = new System.Drawing.Point(128, 678);
+            this.BlackPicture.Name = "BlackPicture";
+            this.BlackPicture.Size = new System.Drawing.Size(50, 50);
+            this.BlackPicture.TabIndex = 3;
+            this.BlackPicture.TabStop = false;
             // 
-            // pictureBox4
+            // HighlightIndicator1
             // 
-            pictureBox4.BackColor = Color.FromArgb(128, 255, 128);
-            pictureBox4.Location = new Point(489, 671);
-            pictureBox4.Name = "pictureBox4";
-            pictureBox4.Size = new Size(271, 61);
-            pictureBox4.TabIndex = 4;
-            pictureBox4.TabStop = false;
+            this.HighlightIndicator1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
+            this.HighlightIndicator1.Location = new System.Drawing.Point(489, 671);
+            this.HighlightIndicator1.Name = "HighlightIndicator1";
+            this.HighlightIndicator1.Size = new System.Drawing.Size(271, 61);
+            this.HighlightIndicator1.TabIndex = 4;
+            this.HighlightIndicator1.TabStop = false;
             // 
-            // pictureBox5
+            // HighLightIndicator2
             // 
-            pictureBox5.BackColor = Color.FromArgb(128, 255, 128);
-            pictureBox5.Location = new Point(108, 671);
-            pictureBox5.Name = "pictureBox5";
-            pictureBox5.Size = new Size(283, 61);
-            pictureBox5.TabIndex = 5;
-            pictureBox5.TabStop = false;
+            this.HighLightIndicator2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
+            this.HighLightIndicator2.Location = new System.Drawing.Point(108, 671);
+            this.HighLightIndicator2.Name = "HighLightIndicator2";
+            this.HighLightIndicator2.Size = new System.Drawing.Size(283, 61);
+            this.HighLightIndicator2.TabIndex = 5;
+            this.HighLightIndicator2.TabStop = false;
             // 
-            // label1
+            // CounterBlack
             // 
-            label1.AutoSize = true;
-            label1.BackColor = Color.Green;
-            label1.Font = new Font("Segoe UI", 30F, FontStyle.Regular, GraphicsUnit.Point);
-            label1.Location = new Point(24, 674);
-            label1.Name = "label1";
-            label1.Size = new Size(45, 54);
-            label1.TabIndex = 6;
-            label1.Text = "0";
+            this.CounterBlack.AutoSize = true;
+            this.CounterBlack.BackColor = System.Drawing.Color.Green;
+            this.CounterBlack.Font = new System.Drawing.Font("Segoe UI", 30F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.CounterBlack.Location = new System.Drawing.Point(24, 674);
+            this.CounterBlack.Name = "CounterBlack";
+            this.CounterBlack.Size = new System.Drawing.Size(45, 54);
+            this.CounterBlack.TabIndex = 6;
+            this.CounterBlack.Text = "0";
             // 
-            // label2
+            // CounterWhite
             // 
-            label2.AutoSize = true;
-            label2.BackColor = Color.Green;
-            label2.Font = new Font("Segoe UI", 30F, FontStyle.Regular, GraphicsUnit.Point);
-            label2.Location = new Point(412, 674);
-            label2.Name = "label2";
-            label2.Size = new Size(45, 54);
-            label2.TabIndex = 7;
-            label2.Text = "0";
+            this.CounterWhite.AutoSize = true;
+            this.CounterWhite.BackColor = System.Drawing.Color.Green;
+            this.CounterWhite.Font = new System.Drawing.Font("Segoe UI", 30F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.CounterWhite.Location = new System.Drawing.Point(412, 674);
+            this.CounterWhite.Name = "CounterWhite";
+            this.CounterWhite.Size = new System.Drawing.Size(45, 54);
+            this.CounterWhite.TabIndex = 7;
+            this.CounterWhite.Text = "0";
             // 
-            // textBox1
+            // PlayerNameLabel
             // 
-            textBox1.Font = new Font("Segoe UI", 18F, FontStyle.Regular, GraphicsUnit.Point);
-            textBox1.Location = new Point(184, 678);
-            textBox1.Name = "textBox1";
-            textBox1.Size = new Size(187, 39);
-            textBox1.TabIndex = 8;
+            this.PlayerNameLabel.Font = new System.Drawing.Font("Segoe UI", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.PlayerNameLabel.Location = new System.Drawing.Point(184, 678);
+            this.PlayerNameLabel.Name = "PlayerNameLabel";
+            this.PlayerNameLabel.Size = new System.Drawing.Size(187, 39);
+            this.PlayerNameLabel.TabIndex = 8;
             // 
-            // textBox2
+            // PlayerNameLabel2
             // 
-            textBox2.Font = new Font("Segoe UI", 18F, FontStyle.Regular, GraphicsUnit.Point);
-            textBox2.Location = new Point(562, 678);
-            textBox2.Name = "textBox2";
-            textBox2.Size = new Size(179, 39);
-            textBox2.TabIndex = 9;
+            this.PlayerNameLabel2.Font = new System.Drawing.Font("Segoe UI", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.PlayerNameLabel2.Location = new System.Drawing.Point(562, 678);
+            this.PlayerNameLabel2.Name = "PlayerNameLabel2";
+            this.PlayerNameLabel2.Size = new System.Drawing.Size(179, 39);
+            this.PlayerNameLabel2.TabIndex = 9;
             // 
             // saveGameToolStripMenuItem
             // 
-            saveGameToolStripMenuItem.AllowDrop = true;
-            saveGameToolStripMenuItem.AutoClose = false;
-            saveGameToolStripMenuItem.Name = "saveGameToolStripMenuItem";
-            saveGameToolStripMenuItem.ShowItemToolTips = false;
-            saveGameToolStripMenuItem.Size = new Size(61, 4);
+            this.saveGameToolStripMenuItem.AllowDrop = true;
+            this.saveGameToolStripMenuItem.AutoClose = false;
+            this.saveGameToolStripMenuItem.Name = "saveGameToolStripMenuItem";
+            this.saveGameToolStripMenuItem.ShowItemToolTips = false;
+            this.saveGameToolStripMenuItem.Size = new System.Drawing.Size(61, 4);
             // 
             // ONielo
             // 
-            AutoScaleDimensions = new SizeF(7F, 15F);
-            AutoScaleMode = AutoScaleMode.Font;
-            BackColor = Color.FromArgb(0, 64, 0);
-            ClientSize = new Size(784, 761);
-            Controls.Add(textBox2);
-            Controls.Add(textBox1);
-            Controls.Add(pictureBox3);
-            Controls.Add(pictureBox5);
-            Controls.Add(label2);
-            Controls.Add(label1);
-            Controls.Add(pictureBox2);
-            Controls.Add(pictureBox4);
-            Controls.Add(pictureBox1);
-            Controls.Add(menuStrip1);
-            Icon = (Icon)resources.GetObject("$this.Icon");
-            MainMenuStrip = menuStrip1;
-            MaximizeBox = false;
-            MaximumSize = new Size(800, 800);
-            MinimizeBox = false;
-            MinimumSize = new Size(800, 800);
-            Name = "ONielo";
-            Text = "O'Nielo";
-            FormClosing += ONielo_FormClosing;
-            menuStrip1.ResumeLayout(false);
-            menuStrip1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
-            ((System.ComponentModel.ISupportInitialize)pictureBox2).EndInit();
-            ((System.ComponentModel.ISupportInitialize)pictureBox3).EndInit();
-            ((System.ComponentModel.ISupportInitialize)pictureBox4).EndInit();
-            ((System.ComponentModel.ISupportInitialize)pictureBox5).EndInit();
-            ResumeLayout(false);
-            PerformLayout();
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(64)))), ((int)(((byte)(0)))));
+            this.ClientSize = new System.Drawing.Size(784, 761);
+            this.Controls.Add(this.PlayerNameLabel2);
+            this.Controls.Add(this.PlayerNameLabel);
+            this.Controls.Add(this.BlackPicture);
+            this.Controls.Add(this.HighLightIndicator2);
+            this.Controls.Add(this.CounterWhite);
+            this.Controls.Add(this.CounterBlack);
+            this.Controls.Add(this.WhitePicture);
+            this.Controls.Add(this.HighlightIndicator1);
+            this.Controls.Add(this.BackGroundBanner);
+            this.Controls.Add(this.menuStrip1);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MainMenuStrip = this.menuStrip1;
+            this.MaximizeBox = false;
+            this.MaximumSize = new System.Drawing.Size(800, 800);
+            this.MinimizeBox = false;
+            this.MinimumSize = new System.Drawing.Size(800, 800);
+            this.Name = "ONielo";
+            this.Text = "O\'Nielo";
+            this.menuStrip1.ResumeLayout(false);
+            this.menuStrip1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.BackGroundBanner)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.WhitePicture)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.BlackPicture)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.HighlightIndicator1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.HighLightIndicator2)).EndInit();
+            this.ResumeLayout(false);
+            this.PerformLayout();
+
         }
 
         #endregion
 
         private MenuStrip menuStrip1;
-        private ToolStripMenuItem gameToolStripMenuItem;
-        private PictureBox pictureBox1;
-        private PictureBox pictureBox2;
-        private PictureBox pictureBox3;
-        private PictureBox pictureBox4;
-        private PictureBox pictureBox5;
-        private Label label1;
-        private Label label2;
+        private ToolStripMenuItem GameSettingsMenu;
+        private PictureBox BackGroundBanner;
+        private PictureBox WhitePicture;
+        private PictureBox BlackPicture;
+        private PictureBox HighlightIndicator1;
+        private PictureBox HighLightIndicator2;
+        private Label CounterBlack;
+        private Label CounterWhite;
+#pragma warning disable CS0169 // The field 'ONielo.label3' is never used
         private Label label3;
+#pragma warning restore CS0169 // The field 'ONielo.label3' is never used
+#pragma warning disable CS0169 // The field 'ONielo.label4' is never used
         private Label label4;
-        private ToolStripMenuItem newGameToolStripMenuItem;
-        private ToolStripMenuItem loadGameToolStripMenuItem;
-        private TextBox textBox1;
-        private TextBox textBox2;
+#pragma warning restore CS0169 // The field 'ONielo.label4' is never used
+        private ToolStripMenuItem NewGameMenu;
+        private ToolStripMenuItem LoadGameMenu;
+        private TextBox PlayerNameLabel;
+        private TextBox PlayerNameLabel2;
         private ToolStripDropDownMenu saveGameToolStripMenuItem;
-        private ToolStripMenuItem saveGameToolStripMenuItem1;
-        private ToolStripMenuItem settingsToolStripMenuItem;
-        private ToolStripMenuItem toolStripMenuItem1;
-        private ToolStripMenuItem virtualPlayerToolStripMenuItem;
+        private ToolStripMenuItem SaveGameMenu;
+        private ToolStripMenuItem SettingsMenu;
+        private ToolStripMenuItem SpeakMenu;
+        private ToolStripMenuItem VirtualMenu;
         private ToolStripMenuItem helpToolStripMenuItem;
         private ToolStripMenuItem aboutMeToolStripMenuItem;
-        private ToolStripMenuItem informationPanelToolStripMenuItem;
-        private ToolStripMenuItem exitToolStripMenuItem;
+        private ToolStripMenuItem InformationPanelMenu;
+        private ToolStripMenuItem ExitMenu;
     }
 }

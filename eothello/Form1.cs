@@ -1,15 +1,8 @@
 using GameboardGUI;
-using Microsoft.VisualBasic;
-using System.Text.Json;
-using System.Net.Security;
-using System.Speech.Synthesis;
-using System.Drawing.Drawing2D;
-using System.Drawing;
 using System.Diagnostics;
+using System.Speech.Synthesis;
+using System.Text.Json;
 using System.Text.RegularExpressions;
-using static eothello.ONielo;
-using System.Windows.Forms;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace eothello
 {
@@ -49,7 +42,9 @@ namespace eothello
 
 
 
+#pragma warning disable CS8618 // Non-nullable field '_gameBoardGui' must contain a non-null value when exiting constructor. Consider declaring the field as nullable.
         public ONielo()
+#pragma warning restore CS8618 // Non-nullable field '_gameBoardGui' must contain a non-null value when exiting constructor. Consider declaring the field as nullable.
         {
             InitializeComponent();
             Point top = new Point(30, 30);
@@ -68,7 +63,7 @@ namespace eothello
                 _gameBoardGui = new GameboardImageArray(this, gameBoardData, top, bottom, 0, tileImagesDirPath);
                 _gameBoardGui.TileClicked += new GameboardImageArray.TileClickedEventDelegate(GameTileClicked);
                 _gameBoardGui.UpdateBoardGui(gameBoardData);
-                IterateThroughBoard();
+                DrawOutline();
                 UserInterface();
                 SpeakSettings();
                 NumberSet();
@@ -83,7 +78,7 @@ namespace eothello
                 {
                     SaveFilesload();
                 }
-                else { loadGameToolStripMenuItem.Visible = false; }
+                else { LoadGameMenu.Visible = false; }
 
 
 
@@ -116,68 +111,68 @@ namespace eothello
         /// <param name="selectedCol"></param>
         /// <param name="gameBoardData"></param>
         /// <param name="currentTurn"></param>
-        
+
         /// Tuple that takes named variables above, and calculates if there is a possible move to be performed, returns CapturedPoints and validity to each empty sqaure its activated on. 
         public (bool IsValid, List<Point> CapturedPoints) IsValidMove(int selectedRow, int selectedCol, int[,] gameBoardData, int currentTurn)
         {
-        List<Point> capturedPoints = new List<Point>();
-            /// First, it checks if the selected sqaure is a empty or "valid" sqaure to be calculated, this means the value of the square is 0 or 100.
+            List<Point> capturedPoints = new List<Point>();
+
+            // Check if the selected square is empty or "valid" (value is 0 or 100).
             if (gameBoardData[selectedRow, selectedCol] == 0 || gameBoardData[selectedRow, selectedCol] == 100)
             {
-            // Then, the method builds a list of Points, these points are known as the offset to the base selectedRow/Col, offseting itself -1 or +1 in each coordindal direction, to detect any nearby sqaures with the opposite color
-            Point selectedPosition = new Point(selectedRow, selectedCol);
-            (int dx, int dy)[] moveOffsets =
-            {
-                (1, 0), (1, 1), (0, 1), (-1, 1),
-                (-1, 0), (-1, -1), (0, -1), (1, -1)
-            };
+                Point selectedPosition = new Point(selectedRow, selectedCol);
+                (int dx, int dy)[] moveOffsets =
+                {
+            (1, 0), (1, 1), (0, 1), (-1, 1),
+            (-1, 0), (-1, -1), (0, -1), (1, -1)
+        };
 
-            foreach (var offset in moveOffsets)
-            {
-                int newX = selectedPosition.X + offset.dx;
-                int newY = selectedPosition.Y + offset.dy;
-                    // after ,the method checks if the offset chosen is within the board rows (if more than 8, 8 in any coordinal direction in this case) 
-                    // if that condition is passed, it allows the board to check for opposite colours than opposite than current turn,
-                    if (WithinBoard(newX, newY) && gameBoardData[newX, newY] != currentTurn)
+                foreach (var offset in moveOffsets)
+                {
+                    int newX = selectedPosition.X + offset.dx;
+                    int newY = selectedPosition.Y + offset.dy;
+
+                    // Check if the offset is within the board rows (8 or less in any coordinate direction).
+                    if (WithinBoard(newX, newY, gameBoardData))
                     {
-                    int opponentColor = currentTurn == 1 ? 10 : 1;
-                    List<Point> tempCapturedPoints = new List<Point>();
+                        int opponentColor = currentTurn == 1 ? 10 : 1;
+                        List<Point> tempCapturedPoints = new List<Point>();
 
+                        // Save the offset when the condition is met.
+                        while (WithinBoard(newX, newY, gameBoardData) && gameBoardData[newX, newY] == opponentColor)
+                        {
+                            tempCapturedPoints.Add(new Point(newX, newY));
+                            newX += offset.dx;
+                            newY += offset.dy;
+                        }
 
-                    // when this condition is passed, it will then save the offset
-                    while (WithinBoard(newX, newY) && gameBoardData[newX, newY] == opponentColor)
-                    {
-                        tempCapturedPoints.Add(new Point(newX, newY));
-                        newX += offset.dx;
-                        newY += offset.dy;
+                        if (WithinBoard(newX, newY, gameBoardData) && gameBoardData[newX, newY] == currentTurn && tempCapturedPoints.Count > 0)
+                        {
+                            // A valid move is found.
+                            capturedPoints.AddRange(tempCapturedPoints);
+                        }
                     }
+                }
 
-                    if (WithinBoard(newX, newY) && gameBoardData[newX, newY] == currentTurn && tempCapturedPoints.Count > 0)
-                    {
-                        // A valid move is found
-                        capturedPoints.AddRange(tempCapturedPoints);
-                    }
+                if (capturedPoints.Count > 0)
+                {
+                    return (true, capturedPoints); // Return true and the captured points.
                 }
             }
 
-            if (capturedPoints.Count > 0)
-            {
-                return (true, capturedPoints); // Return true and the captured points
-            }
-         }
-
-        return (false, capturedPoints); // Return false and an empty list of captured points
+            return (false, capturedPoints); // Return false and an empty list of captured points.
         }
 
-        // Calculates the overflow limit for current setting. 
-        private bool WithinBoard(int x, int y)
+        // Calculates the overflow limit for the current setting.
+        private bool WithinBoard(int x, int y, int[,] gameBoardData)
         {
             return x >= 0 && x < gameBoardData.GetLength(0) && y >= 0 && y < gameBoardData.GetLength(1);
         }
 
 
+
         // Draws the valid squares with an outlined box
-        public void IterateThroughBoard()
+        public void DrawOutline()
         {
             for (int row = 0; row < NUM_OF_BOARD_ROWS; row++)
             {
@@ -282,18 +277,18 @@ namespace eothello
         public void UserInterface()
         {
             var (player1Count, player10Count) = CalculateWinner(); // Runs every turn to update UI elements 
-            label2.Text = player10Count.ToString();
-            label1.Text = player1Count.ToString();
+            CounterWhite.Text = player10Count.ToString();
+            CounterBlack.Text = player1Count.ToString();
             Color color = Color.FromArgb(123, 255, 128);
             if (TurnCounter == 10)
             {
-                pictureBox4.BackColor = color;
-                pictureBox5.BackColor = Color.Green;
+                HighlightIndicator1.BackColor = color;
+                HighLightIndicator2.BackColor = Color.Green;
             }
             else
             {
-                pictureBox5.BackColor = color;
-                pictureBox4.BackColor = Color.Green;
+                HighLightIndicator2.BackColor = color;
+                HighlightIndicator1.BackColor = Color.Green;
             }
 
         }
@@ -305,10 +300,12 @@ namespace eothello
             int maxDepth = 5; // How many turns in front before board evaluation
             int timeThreshold = 1000; // Stopwatch, if board searches for more than 1second terminate search
 
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed. Consider applying the 'await' operator to the result of the call.
             StartStopwatch();
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed. Consider applying the 'await' operator to the result of the call.
 
             int alpha = int.MinValue; // Alpha/Beta Var for Beta pruning implementation, minimising the amount of searches per game tree based on previous result of previous branch
-            int beta = int.MaxValue; 
+            int beta = int.MaxValue;
 
             int player = TurnCounter;
             int opponent = (player == 1) ? 10 : 1;
@@ -382,7 +379,7 @@ namespace eothello
 
                     // AI player speach synth
                     Console.WriteLine(GameTiles);
-                    if (toolStripMenuItem1.Checked)
+                    if (SpeakMenu.Checked)
                     {
                         speaker.SpeakAsync("Player placed counter at " + coordinate);
                         speaker.SpeakAsync("tile has flipped at " + GameTiles);
@@ -401,14 +398,16 @@ namespace eothello
                     TurnCounter = (TurnCounter == 1) ? 10 : 1;
                     Console.WriteLine(TurnCounter);
 
-                    IterateThroughBoard();
+                    DrawOutline();
                 }
                 UserInterface();
             }
         }
 
         // Async task for search timeout
+#pragma warning disable CS1998 // This async method lacks 'await' operators and will run synchronously. Consider using the 'await' operator to await non-blocking API calls, or 'await Task.Run(...)' to do CPU-bound work on a background thread.
         private async Task StartStopwatch()
+#pragma warning restore CS1998 // This async method lacks 'await' operators and will run synchronously. Consider using the 'await' operator to await non-blocking API calls, or 'await Task.Run(...)' to do CPU-bound work on a background thread.
         {
             stopwatch.Start();
         }
@@ -560,22 +559,22 @@ namespace eothello
             var (isValid, capturedPoints) = IsValidMove(selectionRow, selectionCol, gameBoardData, TurnCounter);
 
             // Set default names if not provided
-            if (textBox1.Text == "")
+            if (PlayerNameLabel.Text == "")
             {
-                textBox1.Text = "Player #1 ";
+                PlayerNameLabel.Text = "Player #1 ";
             }
-            if (textBox2.Text == "")
+            if (PlayerNameLabel2.Text == "")
             {
-                textBox2.Text = "Player #2 ";
+                PlayerNameLabel2.Text = "Player #2 ";
             }
 
             // nametag readonly
-            textBox1.ReadOnly = true;
-            textBox2.ReadOnly = true;
+            PlayerNameLabel.ReadOnly = true;
+            PlayerNameLabel2.ReadOnly = true;
 
 
             if (isValid)
-            { 
+            {
                 int color = TurnCounter;
                 DisposeOfValidMoves();
 
@@ -596,7 +595,7 @@ namespace eothello
 
                 Console.WriteLine(GameTiles);
 
-                if (toolStripMenuItem1.Checked)
+                if (SpeakMenu.Checked)
                 {
                     // Speak the move details if text-to-speech is enabled
                     speaker.SpeakAsync("Player placed counter at " + coordinate);
@@ -618,12 +617,14 @@ namespace eothello
                 TurnCounter = (TurnCounter == 1) ? 10 : 1;
 
                 // Redisplay valid moves for the next player
-                IterateThroughBoard();
+                DrawOutline();
             }
             if (TurnCounter == 10)
             {
 
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed. Consider applying the 'await' operator to the result of the call.
                 if (virtualplayer) { VirtualPlayerTurn(); }
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed. Consider applying the 'await' operator to the result of the call.
 
             }
             else
@@ -638,7 +639,7 @@ namespace eothello
         // Configures settings for the speech synthesizer
         public void SpeakSettings()
         {
-            var SpeakItem = toolStripMenuItem1;
+            var SpeakItem = SpeakMenu;
 
 
             SpeechSynthesizer speaker = new SpeechSynthesizer(); // Create a new instance here
@@ -680,7 +681,7 @@ namespace eothello
                 gameBoardData = this.MakeBoardArray();
                 _gameBoardGui.UpdateBoardGui(gameBoardData);
                 TurnCounter = 1;
-                IterateThroughBoard();
+                DrawOutline();
 
             }
 
@@ -691,7 +692,7 @@ namespace eothello
             var localDate = DateTime.Now;
             string defaultString = localDate.ToString();
             // User input for save name
-            var saveName = Microsoft.VisualBasic.Interaction.InputBox("Please Enter Save Name", "Save Game", defaultString); 
+            var saveName = Microsoft.VisualBasic.Interaction.InputBox("Please Enter Save Name", "Save Game", defaultString);
 
             if (string.IsNullOrEmpty(saveName))
             {
@@ -733,8 +734,8 @@ namespace eothello
             {
                 GameBoardData = jaggedArray,
                 TurnCounter = TurnCounter,
-                BlackCounterName = textBox1.Text,
-                WhiteCounterName = textBox2.Text,
+                BlackCounterName = PlayerNameLabel.Text,
+                WhiteCounterName = PlayerNameLabel2.Text,
                 SaveNum = num,
                 SaveName = saveName
             };
@@ -756,7 +757,7 @@ namespace eothello
                 string jsonArray = "[" + saveDataJson + "]";
                 File.WriteAllText(SaveDir, jsonArray);
                 num = 2;
-                loadGameToolStripMenuItem.Visible = true;
+                LoadGameMenu.Visible = true;
                 SaveFilesload();
 
             }
@@ -796,25 +797,29 @@ namespace eothello
                     jsonDataList.Add(match.Value);
                 }
 
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
                 List<GameData> saveDataList = JsonSerializer.Deserialize<List<GameData>>(existingData);
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
 
                 int tempnum1 = 1;
                 foreach (string item in jsonDataList)
                 {
                     // Generate click even on save dropdown to replace
-                    int currentTempNum = tempnum1; 
+                    int currentTempNum = tempnum1;
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
                     var name = saveDataList[currentTempNum - 1].SaveName;
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
                     var LoadedGame = new ToolStripMenuItem(name);
-                    LoadedGame.Name = name; 
+                    LoadedGame.Name = name;
                     LoadedGame.Click += (sender, e) =>
                     {
 
                         OverWriteData(currentTempNum, saveData, name);
                         MessageBox.Show("Save Overwritten");
                         SaveFilesload();
-                        saveGameToolStripMenuItem1.DropDownItems.Clear();
+                        SaveGameMenu.DropDownItems.Clear();
                     };
-                    saveGameToolStripMenuItem1.DropDownItems.Add(LoadedGame);
+                    SaveGameMenu.DropDownItems.Add(LoadedGame);
                     tempnum1++;
 
                 }
@@ -824,8 +829,8 @@ namespace eothello
         // Loads the list of saved games for display in the UI
         public void SaveFilesload()
         {
-
-            loadGameToolStripMenuItem.DropDownItems.Clear();
+            // Panel Clears before adding any more panels
+            LoadGameMenu.DropDownItems.Clear();
             string ActiveDir = AppDomain.CurrentDomain.BaseDirectory;
             string SaveFilePath = Path.Combine(ActiveDir, "saves", "game_save.json");
             string jsonData = File.ReadAllText(SaveFilePath);
@@ -833,10 +838,14 @@ namespace eothello
             {
                 WriteIndented = false
             };
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
             List<GameData> saveDataList = JsonSerializer.Deserialize<List<GameData>>(jsonData);
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
 
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
             foreach (var item in saveDataList)
             {
+                // Get name for each item in the savegame folder
                 var jaggedArray = item.GameBoardData;
                 int numRows = jaggedArray.Length;
                 int numCols = jaggedArray[0].Length;
@@ -850,23 +859,24 @@ namespace eothello
                         multidimensionalArray[i, j] = jaggedArray[i][j];
                     }
                 }
-
+                // Creates Menu item for the each save game.
                 var LoadedGame = new ToolStripMenuItem(name);
                 LoadedGame.Click += (sender, e) =>
                 {
 
-                    textBox1.Text = item.BlackCounterName;
-                    textBox2.Text = item.WhiteCounterName;
+                    PlayerNameLabel.Text = item.BlackCounterName;
+                    PlayerNameLabel2.Text = item.WhiteCounterName;
                     gameBoardData = multidimensionalArray;
                     TurnCounter = item.TurnCounter;
                     _gameBoardGui.UpdateBoardGui(gameBoardData);
                     DisposeOfValidMoves();
-                    IterateThroughBoard();
+                    DrawOutline();
                     MessageBox.Show("Loading game: " + " " + name);
 
                 };
-                loadGameToolStripMenuItem.DropDownItems.Add(LoadedGame);
+                LoadGameMenu.DropDownItems.Add(LoadedGame);
             }
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
 
         }
         // Replaces existing game data with new game data in the save file
@@ -879,8 +889,11 @@ namespace eothello
             {
                 WriteIndented = false
             };
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
             List<GameData> saveDataList = JsonSerializer.Deserialize<List<GameData>>(jsonData);
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
 
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
             if (tempnum >= 0 && tempnum < saveDataList.Count + 1)
             {
 
@@ -894,6 +907,7 @@ namespace eothello
                 string updatedJsonArray = JsonSerializer.Serialize(saveDataList);
                 File.WriteAllText(SaveFilePath, updatedJsonArray);
             }
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
         }
 
 
@@ -913,51 +927,53 @@ namespace eothello
                     num = 1;
                     return;
                 }
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
                 List<GameData> saveDataList = JsonSerializer.Deserialize<List<GameData>>(jsonData);
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
 
+#pragma warning disable CS0219 // The variable 'highestSaveNum' is assigned but its value is never used
                 int highestSaveNum = -1;
-
+#pragma warning restore CS0219 // The variable 'highestSaveNum' is assigned but its value is never used
+                // Iterate through list and count amount of items in list.
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
                 foreach (var data in saveDataList)
                 {
                     count++;
                 }
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
                 if (count == 5) { count++; }
                 num = count + 1;
 
             }
         }
 
-
-
         public class GameData
         {
+#pragma warning disable CS8618 // Non-nullable property 'GameBoardData' must contain a non-null value when exiting constructor. Consider declaring the property as nullable.
             public int[][] GameBoardData { get; set; }
+#pragma warning restore CS8618 // Non-nullable property 'GameBoardData' must contain a non-null value when exiting constructor. Consider declaring the property as nullable.
             public int TurnCounter { get; set; }
+#pragma warning disable CS8618 // Non-nullable property 'BlackCounterName' must contain a non-null value when exiting constructor. Consider declaring the property as nullable.
             public string BlackCounterName { get; set; }
+#pragma warning restore CS8618 // Non-nullable property 'BlackCounterName' must contain a non-null value when exiting constructor. Consider declaring the property as nullable.
+#pragma warning disable CS8618 // Non-nullable property 'WhiteCounterName' must contain a non-null value when exiting constructor. Consider declaring the property as nullable.
             public string WhiteCounterName { get; set; }
+#pragma warning restore CS8618 // Non-nullable property 'WhiteCounterName' must contain a non-null value when exiting constructor. Consider declaring the property as nullable.
 
             public int SaveNum { get; set; }
+#pragma warning disable CS8618 // Non-nullable property 'SaveName' must contain a non-null value when exiting constructor. Consider declaring the property as nullable.
             public string SaveName { get; set; }
+#pragma warning restore CS8618 // Non-nullable property 'SaveName' must contain a non-null value when exiting constructor. Consider declaring the property as nullable.
         }
-
-
-  
-
-
 
         private void aboutMeToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
+            // Fo
             Form2 f2 = new Form2();
             f2.Show();
 
         }
-
-        private void gameToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-
-        }
-
+        // Activates Virtual Player
         private void virtualPlayerToolStripMenuItem_Click(object sender, EventArgs e)
         {
 
@@ -965,46 +981,46 @@ namespace eothello
             {
 
                 virtualplayer = true;
-                virtualPlayerToolStripMenuItem.CheckState = CheckState.Checked;
+                VirtualMenu.CheckState = CheckState.Checked;
                 virtualboxclicks--;
             }
             else
             {
                 virtualplayer = false;
                 virtualboxclicks++;
-                virtualPlayerToolStripMenuItem.CheckState = CheckState.Unchecked;
+                VirtualMenu.CheckState = CheckState.Unchecked;
             }
         }
-
+        // Hides UI elements
         private void informationPanelToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (informtationboxclick == 1)
             {
-                textBox1.Show();
-                textBox2.Show();
-                label1.Show();
-                label2.Show();
-                pictureBox1.Show();
-                pictureBox2.Show();
-                pictureBox3.Show();
-                pictureBox4.Show();
-                pictureBox5.Show();
+                PlayerNameLabel.Show();
+                PlayerNameLabel2.Show();
+                CounterBlack.Show();
+                CounterWhite.Show();
+                BackGroundBanner.Show();
+                WhitePicture.Show();
+                BlackPicture.Show();
+                HighlightIndicator1.Show();
+                HighLightIndicator2.Show();
                 informtationboxclick--;
-                informationPanelToolStripMenuItem.CheckState = CheckState.Checked;
+                InformationPanelMenu.CheckState = CheckState.Checked;
             }
             else
             {
-                textBox1.Hide();
-                textBox2.Hide();
-                label1.Hide();
-                label2.Hide();
-                pictureBox1.Hide();
-                pictureBox2.Hide();
-                pictureBox3.Hide();
-                pictureBox4.Hide();
-                pictureBox5.Hide();
+                PlayerNameLabel.Hide();
+                PlayerNameLabel2.Hide();
+                CounterBlack.Hide();
+                CounterWhite.Hide();
+                BackGroundBanner.Hide();
+                WhitePicture.Hide();
+                BlackPicture.Hide();
+                HighlightIndicator1.Hide();
+                HighLightIndicator2.Hide();
                 informtationboxclick++;
-                informationPanelToolStripMenuItem.CheckState = CheckState.Unchecked;
+                InformationPanelMenu.CheckState = CheckState.Unchecked;
             }
         }
 
